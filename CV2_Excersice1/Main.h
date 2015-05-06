@@ -3,7 +3,7 @@
 
 #include "opencv2/highgui/highgui.hpp"
 
-#include <stdio.h>
+#include <cstdio>
 
 int main (int argc, const char** argv);
 

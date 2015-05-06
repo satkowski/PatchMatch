@@ -28,13 +28,28 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="..\Ressouren\62962.jpg">
+    <Image Include="..\Ressourcen\frame07.png">
       <Filter>Ressourcendateien</Filter>
     </Image>
-    <Image Include="..\Ressouren\haus.jpg">
+    <Image Include="..\Ressourcen\frame08.png">
       <Filter>Ressourcendateien</Filter>
     </Image>
-    <Image Include="..\Ressouren\prep-for-grilling.jpg">
+    <Image Include="..\Ressourcen\frame09.png">
+      <Filter>Ressourcendateien</Filter>
+    </Image>
+    <Image Include="..\Ressourcen\frame10.png">
+      <Filter>Ressourcendateien</Filter>
+    </Image>
+    <Image Include="..\Ressourcen\frame11.png">
+      <Filter>Ressourcendateien</Filter>
+    </Image>
+    <Image Include="..\Ressourcen\frame12.png">
+      <Filter>Ressourcendateien</Filter>
+    </Image>
+    <Image Include="..\Ressourcen\frame13.png">
+      <Filter>Ressourcendateien</Filter>
+    </Image>
+    <Image Include="..\Ressourcen\frame14.png">
       <Filter>Ressourcendateien</Filter>
     </Image>
   </ItemGroup>

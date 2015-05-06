@@ -91,9 +91,14 @@
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="..\Ressouren\62962.jpg" />
-    <Image Include="..\Ressouren\haus.jpg" />
-    <Image Include="..\Ressouren\prep-for-grilling.jpg" />
+    <Image Include="..\Ressourcen\frame07.png" />
+    <Image Include="..\Ressourcen\frame08.png" />
+    <Image Include="..\Ressourcen\frame09.png" />
+    <Image Include="..\Ressourcen\frame10.png" />
+    <Image Include="..\Ressourcen\frame11.png" />
+    <Image Include="..\Ressourcen\frame12.png" />
+    <Image Include="..\Ressourcen\frame13.png" />
+    <Image Include="..\Ressourcen\frame14.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
