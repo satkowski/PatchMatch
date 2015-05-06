@@ -29,6 +29,4 @@ int main (int argc, const char** argv)
 		printf("Cannot read the image %s\n", inputFileName2.c_str());
 		return -1;
 	}
-
-
 }

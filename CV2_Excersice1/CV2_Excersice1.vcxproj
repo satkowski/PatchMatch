@@ -85,10 +85,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="SimilarityMeasure.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Main.h" />
-    <ClInclude Include="resource.h" />
+    <ClInclude Include="SimilarityMeasure.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\Ressourcen\frame07.png" />

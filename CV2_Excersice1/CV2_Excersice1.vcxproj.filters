@@ -18,12 +18,15 @@
     <ClCompile Include="Main.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
+    <ClCompile Include="SimilarityMeasure.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Main.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="resource.h">
+    <ClInclude Include="SimilarityMeasure.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>
