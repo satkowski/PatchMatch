@@ -23,5 +23,19 @@
     <ClInclude Include="Main.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\Ressouren\62962.jpg">
+      <Filter>Ressourcendateien</Filter>
+    </Image>
+    <Image Include="..\Ressouren\haus.jpg">
+      <Filter>Ressourcendateien</Filter>
+    </Image>
+    <Image Include="..\Ressouren\prep-for-grilling.jpg">
+      <Filter>Ressourcendateien</Filter>
+    </Image>
   </ItemGroup>
 </Project>
