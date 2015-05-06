@@ -6,7 +6,7 @@ int main (int argc, const char** argv)
 {
 	const char* keyMap;
 	//Standard image that will be used if dont exist arguments
-	keyMap = "{path     |   |../Bilder/haus.jpg }";
+	keyMap = "{path     |   |$(SolutionDir)\Ressourcen\prep-for-grilling.jpg }";
 
 	//Reading the Callingarguments
 	CommandLineParser parser (argc, argv, keyMap);
