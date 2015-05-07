@@ -2,8 +2,9 @@
 #define MAIN_H
 
 #include "opencv2/highgui/highgui.hpp"
-
 #include <cstdio>
+
+#include "SimilarityMeasure.h"
 
 int main (int argc, const char** argv);
 
