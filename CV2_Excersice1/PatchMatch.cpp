@@ -2,7 +2,7 @@
 
 using namespace cv;
 
-Vec<Mat, 2> calculateOpticalFlow(Mat* firstImage, Mat* secondImage, int windowSize)
+Mat calculateOpticalFlow(Mat* firstImage, Mat* secondImage, int windowSize)
 {
 	Mat tempFirstImage, tempSecondImage;
 	firstImage->convertTo(tempFirstImage, CV_64FC3);
@@ -47,11 +47,7 @@ Vec<Mat, 2> calculateOpticalFlow(Mat* firstImage, Mat* secondImage, int windowSi
 	}
 
 	// Warp the firstImage in the secondImage
-	Vec<Mat, 2> output;
-	output[0] = opticalFlow;
-	output[1] = warpImage(firstImage, &opticalFlow);
-
-	return output;
+	return warpImage(firstImage, &opticalFlow);
 }
 
 Mat createInitialization(const Mat* firstImage)
@@ -146,7 +142,7 @@ Point randomSearchAlg(Mat* firstImage, Mat* secondImage, int windowSize, Point a
 
 Mat warpImage(Mat* firstImage, Mat* opticalFlow)
 {
-	Mat outputImage = Mat(firstImage->rows, firstImage->cols, CV_8UC3);
+	Mat outputImage = Mat_<Vec3b>(firstImage->rows, firstImage->cols);
 
 	for (int cY = 0; cY < firstImage->rows; cY++)
 		for (int cX = 0; cX < firstImage->cols; cX++)

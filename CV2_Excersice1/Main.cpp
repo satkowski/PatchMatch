@@ -38,8 +38,8 @@ int main (int argc, const char** argv)
 
 	printf("Start the PatchMatch\n");
 
-	//Vec<Mat, 2> output = calculateOpticalFlow(&inputImage1, &inputImage2, inputWindowSize);
+	Mat output = calculateOpticalFlow(&inputImage1, &inputImage2, inputWindowSize);
 
 	printf("Finished PatchMatch\n");
-	//imwrite("warpedImage.jpeg", output[2]);
+	imwrite("warpedImage.jpeg", output);
 }

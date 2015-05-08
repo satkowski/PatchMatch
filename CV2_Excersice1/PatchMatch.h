@@ -17,7 +17,7 @@ struct comparePoints
 	bool operator()(const cv::Point &left, const cv::Point &right);
 };
 
-cv::Vec<cv::Mat, 2> calculateOpticalFlow(cv::Mat* firstImage, cv::Mat* secondImage, int windowSize);
+cv::Mat calculateOpticalFlow(cv::Mat* firstImage, cv::Mat* secondImage, int windowSize);
 
 cv::Mat createInitialization(const cv::Mat* firstImage);
 std::pair<cv::Point, double> propagationAlg(cv::Mat* firstImage, cv::Mat* secondImage, int windowSize, int propegationDirection, cv::Point actualPoint, cv::Point actualOffset);
