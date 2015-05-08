@@ -2,24 +2,20 @@
 
 using namespace cv;
 
-double colorSSD(const Mat* firstImage, const Mat* secondImage, Point imagePoint, int windowSize, Point offsetPoint)
+double colorSSD(const Mat* firstImage, const Mat* secondImage, Point imagePoint, int windowSize, Point offset)
 {
 	double ssdPatch = 0;
 	for (int cY = -windowSize; cY < windowSize; cY++)
 	{
 		for (int cX = -windowSize; cX < windowSize; cX++)
 		{
-			Mat tempFirstImage, tempSecondImage;
-			firstImage->convertTo(tempFirstImage, CV_64FC3);
-			secondImage->convertTo(tempSecondImage, CV_64FC3);
-
 			double ssd;
 			try
 			{
-				Point offsetPatchPixel = Point(offsetPoint.x + cY, offsetPoint.y + cX);
 				Point imagePatchPixel = Point(imagePoint.x + cY, imagePoint.y + cX);
+				Point offsetPatchPixel = Point(imagePoint.x + offset.x + cY, imagePoint.y +  offset.y + cX);
 
-				Vec3d difference = tempFirstImage.at<Vec3d>(imagePatchPixel) - tempSecondImage.at<Vec3d>(offsetPatchPixel);
+				Vec3d difference = firstImage->at<Vec3d>(imagePatchPixel) - secondImage->at<Vec3d>(offsetPatchPixel);
 				ssd = difference[0] * difference[0] +
 					  difference[1] * difference[1] +
 					  difference[2] * difference[2];

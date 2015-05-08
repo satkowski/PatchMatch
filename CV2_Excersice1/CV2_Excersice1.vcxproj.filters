@@ -21,12 +21,18 @@
     <ClCompile Include="SimilarityMeasure.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
+    <ClCompile Include="PatchMatch.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Main.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
     <ClInclude Include="SimilarityMeasure.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="PatchMatch.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>

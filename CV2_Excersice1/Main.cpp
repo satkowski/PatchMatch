@@ -20,7 +20,7 @@ int main (int argc, const char** argv)
 	String inputFileName1 = parser.get<String>("path1");
 	String inputFileName2 = parser.get<String>("path2");
 	Point inputImagePoint = Point(parser.get<int>("pixelX"), parser.get<int>("pixelY"));
-	Point inputOffsetImagePoint = Point(parser.get<int>("offsetX") + inputImagePoint.x, parser.get<int>("offsetY") + inputImagePoint.y);
+	Point inputOffsetImagePoint = Point(parser.get<int>("offsetX"), parser.get<int>("offsetY"));
 	int inputWindowSize = parser.get<int>("window");
 
 	// Creating the images and testing if there are empty or not
@@ -37,5 +37,5 @@ int main (int argc, const char** argv)
 		return -1;
 	}
 
-	printf("%f\n", colorSSD(&inputImage1, &inputImage2, inputImagePoint, inputWindowSize, inputOffsetImagePoint));
+
 }

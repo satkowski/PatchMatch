@@ -4,7 +4,7 @@
 #include "opencv2/highgui/highgui.hpp"
 #include <cstdio>
 
-#include "SimilarityMeasure.h"
+#include "PatchMatch.h"
 
 int main (int argc, const char** argv);
 
