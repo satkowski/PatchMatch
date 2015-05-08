@@ -38,5 +38,5 @@ int main (int argc, const char** argv)
 	}
 
 	// Initializies random
-	srand((uint)time(0));
+	srand(static_cast<unsigned>(time(0)));
 }

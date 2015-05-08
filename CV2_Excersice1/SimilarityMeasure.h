@@ -3,6 +3,6 @@
 
 #include <opencv2/core/core.hpp>
 
-long colorSSD(const cv::Mat* firstImage, const cv::Mat* secondImage, cv::Point imagePoint, int windowSize, cv::Point offset);
+double colorSSD(const cv::Mat* firstImage, const cv::Mat* secondImage, cv::Point imagePoint, int windowSize, cv::Point offset);
 
 #endif // !SIMILARITYMEASURE_H

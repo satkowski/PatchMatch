@@ -3,7 +3,8 @@
 
 #include "opencv2/highgui/highgui.hpp"
 #include <cstdio>
-#include "time.h"
+#include <ctime>
+#include <cstdlib>
 
 #include "PatchMatch.h"
 
