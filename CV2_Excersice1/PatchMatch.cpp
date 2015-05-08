@@ -13,6 +13,7 @@ Vec<Mat, 2> calculateOpticalFlow(const Mat* firstImage, const Mat* secondImage, 
 	// Loop for all iterations
 	for (int iterationIndex = 0; iterationIndex < ITERATION_TIMES; iterationIndex++)
 	{
+		printf("Iteration %d:\n", iterationIndex);
 		// Iteration of all pixels/patches
 		// EVEN Iteration
 		for (int cY = 0; cY < firstImage->rows; cY++)
@@ -24,11 +25,13 @@ Vec<Mat, 2> calculateOpticalFlow(const Mat* firstImage, const Mat* secondImage, 
 				// RandomSearch step: Change tha last offset to the computed best offset
 				opticalFlow.at<Point>(cY, cX) = randomSearchAlg(&tempFirstImage, &tempSecondImage, windowSize, Point(cY, cX), actualOffset);
 			}
+		printf("\n");
 
 		// Cancel the next part if the number of Iterations is reached
 		if (++iterationIndex >= ITERATION_TIMES)
 			break;
 
+		printf("Iteration %d:\n", iterationIndex);
 		// Iteration of all pixels/patches
 		// ODD Iteration
 		for (int cY = firstImage->rows; cY > 0; cY--)
@@ -40,12 +43,15 @@ Vec<Mat, 2> calculateOpticalFlow(const Mat* firstImage, const Mat* secondImage, 
 				// RandomSearch step: Change tha last offset to the computed best offset
 				opticalFlow.at<Point>(cY, cX) = randomSearchAlg(&tempFirstImage, &tempSecondImage, windowSize, Point(cY, cX), actualOffset);
 			}
+		printf("\n");
 	}
+
 }
 
 Mat createInitialization(const Mat* firstImage)
 {
 	using namespace std;
+	printf("Initialization: Start");
 
 	Mat initializationOpticalFlow = Mat_<Point>(firstImage->rows, firstImage->cols);
 	set<Point, comparePoints> avaiblePointSet;
@@ -70,11 +76,14 @@ Mat createInitialization(const Mat* firstImage)
 			initializationOpticalFlow.at<Point>(cY, cX) = Point(randomPoint.x - cX, randomPoint.y - cY);
 		}
 
+	printf(" - End\n");
 	return initializationOpticalFlow;
 }
 
 std::pair<Point, double> propagationAlg(Mat* firstImage, Mat* secondImage, int windowSize, int propegationDirection, Point actualPoint, Point actualOffset)
 {
+	printf("Propagation: Start");
+
 	Point verticalNeighbourOffset = Point(actualOffset.x, actualOffset.y + propegationDirection);
 	Point horizontalNeighbourOffset = Point(actualOffset.x + propegationDirection, actualOffset.y);
 
@@ -95,12 +104,14 @@ std::pair<Point, double> propagationAlg(Mat* firstImage, Mat* secondImage, int w
 		actualSimilarity = horizontalNeighbourSim;
 	}
 
+	printf(" - End\n");
 	return std::pair<Point, double>(actualOffset, actualSimilarity);
 }
 
 Point randomSearchAlg(Mat* firstImage, Mat* secondImage, int windowSize, Point actualPoint, std::pair<Point, double> actualOffset)
 {
 	using namespace std;
+	printf("RandomSearch: Start");
 
 	int iteration = 0;
 	int maxSearchRadius = max(firstImage->rows, firstImage->cols) / 2;
@@ -123,6 +134,7 @@ Point randomSearchAlg(Mat* firstImage, Mat* secondImage, int windowSize, Point a
 	if (minOffsetPair.second < actualOffset.second)
 		actualOffset = minOffsetPair;
 
+	printf(" - End\n");
 	return actualOffset.first;
 }
 
