@@ -19,6 +19,7 @@ double colorSSD(const Mat* firstImage, const Mat* secondImage, Point imagePoint,
 		for (int cX = -windowSize; cX < windowSize; cX++)
 		{
 			double ssd;
+			int pixelsAdded = 0;
 			// Try if all pixel are inside the image
 			try
 			{
@@ -31,12 +32,14 @@ double colorSSD(const Mat* firstImage, const Mat* secondImage, Point imagePoint,
 				ssd = difference[0] * difference[0] +
 					  difference[1] * difference[1] +
 					  difference[2] * difference[2];
+
+				pixelsAdded++;
 			}
 			catch (Exception e)
 			{
 				continue;
 			}
-			ssdPatch += ssd;
+			ssdPatch += ssd / pixelsAdded;
 		}
 
 	if (ssdPatch == 0)
