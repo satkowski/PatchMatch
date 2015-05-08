@@ -7,8 +7,10 @@
 
 #include "SimilarityMeasure.h"
 
-#define ITERAATION_TIMES 5
+#define ITERATION_TIMES 5
 #define SEARCH_RATIO 1/2
+#define PROPAGATION_EVEN 1
+#define PROPAGATION_ODD -1
 
 struct comparePoints
 {
@@ -18,5 +20,7 @@ struct comparePoints
 cv::Vec<cv::Mat, 2> calculateOpticalFlow(const cv::Mat* firstImage, const cv::Mat* secondImage, const int windowSize);
 
 cv::Mat createInitialization(const cv::Mat* firstImage);
+std::pair<cv::Point, double> propagationAlg(cv::Mat* firstImage, cv::Mat* secondImage, int windowSize, int propegationDirection, cv::Point actualPoint, cv::Point actualOffset);
+cv::Point randomSearchAlg(cv::Mat* firstImage, cv::Mat* secondImage, int windowSize, cv::Point actualPoint, std::pair<cv::Point, double> actualOffset);
 
 #endif // !PATCHMATCH_H
