@@ -37,5 +37,6 @@ int main (int argc, const char** argv)
 		return -1;
 	}
 
-
+	// Initializies random
+	srand((uint)time(0));
 }
