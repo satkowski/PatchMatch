@@ -56,27 +56,28 @@ Mat createInitialization(const Mat* firstImage)
 	printf("Initialization: Start");
 
 	Mat initializationOpticalFlow = Mat_<Point>(firstImage->rows, firstImage->cols);
-	set<Point, comparePoints> avaiblePointSet;
-
+	vector<Point> avaiblePointList;
+	
 	// Fill the set with all avaible points
 	for (int cY = 0; cY < firstImage->rows; cY++)
 		for (int cX = 0; cX < firstImage->cols; cX++)
-			avaiblePointSet.insert(Point(cX, cY));
+			avaiblePointList.push_back(Point(cX, cY));
 
-	int avaiblePointSetSize = avaiblePointSet.size();
+	random_shuffle(avaiblePointList.begin(), avaiblePointList.end());
 
 	// Pair all points with random point in the set
 	for (int cY = 0; cY < firstImage->rows; cY++)
+	{
 		for (int cX = 0; cX < firstImage->cols; cX++)
 		{
 			// Search for a random point in the set and delete it from there
-			set<Point>::iterator iterator = avaiblePointSet.begin();
-			next(iterator, rand() % avaiblePointSetSize--);
-			Point randomPoint = *iterator;
-			avaiblePointSet.erase(randomPoint);
+			Point randomPoint = *avaiblePointList.begin();
+			avaiblePointList.erase(avaiblePointList.begin());
 			// Add the random point as offset to the matrix
 			initializationOpticalFlow.at<Point>(cY, cX) = Point(randomPoint.x - cX, randomPoint.y - cY);
 		}
+		printf("%d", cY);
+	}
 
 	printf(" - End\n");
 	return initializationOpticalFlow;
@@ -154,5 +155,11 @@ Mat warpImage(Mat* firstImage, Mat* opticalFlow)
 
 bool comparePoints::operator()(const Point &left, const Point &right)
 {
-	return (left.x < right.x && left.y < right.y);
+	bool test = (left.x < right.x && left.y < right.y);
+	return (left.x <= right.x && left.y <= right.y);
+}
+
+int myRandom(int i)
+{
+	return rand() % i;
 }

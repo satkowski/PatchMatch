@@ -2,7 +2,7 @@
 #define PATCHMATCH_H
 
 #include <opencv2/core/core.hpp>
-#include <set>
+#include <list>
 #include <map>
 
 #include "SimilarityMeasure.h"
@@ -16,6 +16,7 @@ struct comparePoints
 {
 	bool operator()(const cv::Point &left, const cv::Point &right);
 };
+int myRandom(int i);
 
 cv::Mat calculateOpticalFlow(cv::Mat* firstImage, cv::Mat* secondImage, int windowSize);
 
