@@ -38,8 +38,7 @@ int main (int argc, const char** argv)
 
 	printf("Start the PatchMatch\n");
 
-	Mat output = calculateOpticalFlow(&inputImage1, &inputImage2, inputWindowSize);
+	calculateOpticalFlow(&inputImage1, &inputImage2, inputWindowSize);
 
 	printf("Finished PatchMatch\n");
-	imwrite("warpedImage.jpeg", output);
 }
