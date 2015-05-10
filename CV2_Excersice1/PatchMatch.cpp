@@ -67,17 +67,14 @@ Mat createInitialization(const Mat* firstImage)
 
 	// Pair all points with random point in the set
 	for (int cY = 0; cY < firstImage->rows; cY++)
-	{
 		for (int cX = 0; cX < firstImage->cols; cX++)
 		{
 			// Search for a random point in the set and delete it from there
-			Point randomPoint = *avaiblePointList.begin();
-			avaiblePointList.erase(avaiblePointList.begin());
+			Point randomPoint = avaiblePointList.back();
+			avaiblePointList.pop_back();
 			// Add the random point as offset to the matrix
 			initializationOpticalFlow.at<Point>(cY, cX) = Point(randomPoint.x - cX, randomPoint.y - cY);
 		}
-		printf("%d", cY);
-	}
 
 	printf(" - End\n");
 	return initializationOpticalFlow;
@@ -157,9 +154,4 @@ bool comparePoints::operator()(const Point &left, const Point &right)
 {
 	bool test = (left.x < right.x && left.y < right.y);
 	return (left.x <= right.x && left.y <= right.y);
-}
-
-int myRandom(int i)
-{
-	return rand() % i;
 }

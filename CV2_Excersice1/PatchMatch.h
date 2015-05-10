@@ -16,7 +16,6 @@ struct comparePoints
 {
 	bool operator()(const cv::Point &left, const cv::Point &right);
 };
-int myRandom(int i);
 
 cv::Mat calculateOpticalFlow(cv::Mat* firstImage, cv::Mat* secondImage, int windowSize);
 

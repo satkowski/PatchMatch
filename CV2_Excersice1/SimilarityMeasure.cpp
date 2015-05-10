@@ -18,28 +18,26 @@ double colorSSD(const Mat* firstImage, const Mat* secondImage, Point imagePoint,
 	for (int cY = -windowSize; cY < windowSize; cY++)
 		for (int cX = -windowSize; cX < windowSize; cX++)
 		{
-			double ssd;
+			long ssd;
 			int pixelsAdded = 0;
+			Point imagePatchPixel = Point(imagePoint.x + cX, imagePoint.y + cY);
+			Point offsetPatchPixel = Point(imagePoint.x + offset.x + cX, imagePoint.y + offset.y + cY);
+
 			// Try if all pixel are inside the image
-			try
-			{
-				// TODO: divide the output with the times a pixel was added
-				Point imagePatchPixel = Point(imagePoint.x + cX, imagePoint.y + cY);
-				Point offsetPatchPixel = Point(imagePoint.x + offset.x + cX, imagePoint.y + offset.y + cY);
-
-				Vec3d difference = firstImage->at<Vec3d>(imagePatchPixel.y, imagePatchPixel.x) - 
-								   secondImage->at<Vec3d>(offsetPatchPixel.y, offsetPatchPixel.x);
-				ssd = difference[0] * difference[0] +
-					  difference[1] * difference[1] +
-					  difference[2] * difference[2];
-
-				pixelsAdded++;
-			}
-			catch (Exception e)
-			{
+			if (imagePatchPixel.x < 0 || imagePatchPixel.x >= firstImage->cols ||
+				imagePatchPixel.y < 0 || imagePatchPixel.y >= firstImage->rows ||
+				offsetPatchPixel.x < 0 || offsetPatchPixel.x >= secondImage->cols ||
+				offsetPatchPixel.y < 0 || offsetPatchPixel.y >= secondImage->rows)
 				continue;
-			}
-			ssdPatch += ssd / pixelsAdded;
+
+			Vec3d difference = firstImage->at<Vec3d>(imagePatchPixel.y, imagePatchPixel.x) - 
+								secondImage->at<Vec3d>(offsetPatchPixel.y, offsetPatchPixel.x);
+			ssd = static_cast<long>(difference[0]) * static_cast<long>(difference[0]) +
+					static_cast<long>(difference[1]) * static_cast<long>(difference[1]) +
+					static_cast<long>(difference[2]) * static_cast<long>(difference[2]);
+
+			pixelsAdded++;
+			ssdPatch += static_cast<double>(ssd / pixelsAdded);
 		}
 
 	if (ssdPatch == 0)
