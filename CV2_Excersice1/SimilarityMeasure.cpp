@@ -37,7 +37,7 @@ double colorSSD(const Mat* firstImage, const Mat* secondImage, Point imagePoint,
 					static_cast<long>(difference[2]) * static_cast<long>(difference[2]);
 
 			pixelsAdded++;
-			ssdPatch += static_cast<double>(ssd / pixelsAdded);
+			ssdPatch += static_cast<double>(ssd) / static_cast<double>(pixelsAdded);
 		}
 
 	if (ssdPatch == 0)

@@ -82,7 +82,7 @@ Mat createInitialization(const Mat* firstImage)
 
 std::pair<Point, double> propagationAlg(Mat* firstImage, Mat* secondImage, int windowSize, int propegationDirection, Point actualPoint, Point actualOffset)
 {
-	printf("Propagation: Start");
+	//printf("Propagation: Start");
 
 	Point verticalNeighbourOffset = Point(actualOffset.x, actualOffset.y + propegationDirection);
 	Point horizontalNeighbourOffset = Point(actualOffset.x + propegationDirection, actualOffset.y);
@@ -104,37 +104,42 @@ std::pair<Point, double> propagationAlg(Mat* firstImage, Mat* secondImage, int w
 		actualSimilarity = horizontalNeighbourSim;
 	}
 
-	printf(" - End\n");
+	//printf(" - End\n");
 	return std::pair<Point, double>(actualOffset, actualSimilarity);
 }
 
 Point randomSearchAlg(Mat* firstImage, Mat* secondImage, int windowSize, Point actualPoint, std::pair<Point, double> actualOffset)
 {
 	using namespace std;
-	printf("RandomSearch: Start");
+	//printf("RandomSearch: Start");
 
 	int iteration = 0;
 	int maxSearchRadius = max(firstImage->rows, firstImage->cols) / 2;
-	map<Point, double, comparePoints> randomPointsMap;
+	vector<pair<Point, double> > randomPointsList;
 	// Iterate while maxSearchRadius * SEARCH_RATIO^iteration < 1
 	do
 	{
 		Vec2f randomPoint = Vec2f((static_cast<float>(rand()) / static_cast<float>(RAND_MAX / 2)) - 1,
 								  (static_cast<float>(rand()) / static_cast<float>(RAND_MAX / 2)) - 1);
 		randomPoint *= maxSearchRadius*pow(SEARCH_RATIO, iteration++);
-		Point randomOffset = Point((int)randomPoint[0] + actualOffset.first.x, (int)randomPoint[1] + actualOffset.first.y);
-		randomPointsMap[randomOffset] = colorSSD(firstImage, secondImage, actualPoint, windowSize, randomOffset);
+		Point randomOffset = Point(static_cast<int>(randomPoint[0]) + actualOffset.first.x, 
+								   static_cast<int>(randomPoint[1]) + actualOffset.first.y);
+		randomPointsList.push_back(pair<Point, double>(randomOffset, 
+													   colorSSD(firstImage, secondImage, actualPoint, windowSize, randomOffset)));
 	}
 	while (maxSearchRadius*pow(SEARCH_RATIO, iteration) >= 1);
 
 	// Choose the best offset and test if it is better than the actual one
-	pair<Point, double> minOffsetPair;
-	for (map<Point, double>::iterator it = randomPointsMap.begin(); it != randomPointsMap.end(); next(it, 1))
-		minOffsetPair = (it->second < minOffsetPair.second) ? *it : minOffsetPair;
+	pair<Point, double> minOffsetPair = pair<Point, double>(Point(0, 0), numeric_limits<double>::infinity());
+	while (randomPointsList.size() > 0)
+	{
+		minOffsetPair = (randomPointsList.back().second < minOffsetPair.second) ? randomPointsList.back() : minOffsetPair;
+		randomPointsList.pop_back();
+	}
 	if (minOffsetPair.second < actualOffset.second)
 		actualOffset = minOffsetPair;
 
-	printf(" - End\n");
+	//printf(" - End\n");
 	return actualOffset.first;
 }
 
@@ -148,10 +153,4 @@ Mat warpImage(Mat* firstImage, Mat* opticalFlow)
 				= firstImage->at<Vec3b>(cY, cX);
 
 	return outputImage;
-}
-
-bool comparePoints::operator()(const Point &left, const Point &right)
-{
-	bool test = (left.x < right.x && left.y < right.y);
-	return (left.x <= right.x && left.y <= right.y);
 }
