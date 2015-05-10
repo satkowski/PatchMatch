@@ -27,7 +27,7 @@ void calculateOpticalFlow(Mat* firstImage, Mat* secondImage, int windowSize)
 			}
 
 		outputImage = warpImage(firstImage, &opticalFlow);
-		saveImage(&outputImage, "Iteration_" + std::to_string(iterationIndex) + ".jpeg");
+		saveImage(&outputImage, "Output/Iteration_" + std::to_string(iterationIndex) + ".jpeg");
 		// Cancel the next part if the number of Iterations is reached
 		if (++iterationIndex >= ITERATION_TIMES)
 			break;
@@ -46,7 +46,7 @@ void calculateOpticalFlow(Mat* firstImage, Mat* secondImage, int windowSize)
 			}
 
 		outputImage = warpImage(firstImage, &opticalFlow);
-		saveImage(&outputImage, "Iteration_" + std::to_string(iterationIndex) + ".jpeg");
+		saveImage(&outputImage, "Output/Iteration_" + std::to_string(iterationIndex) + ".jpeg");
 	}
 }
 
@@ -141,11 +141,6 @@ Point randomSearchAlg(Mat* firstImage, Mat* secondImage, int windowSize, Point a
 Mat warpImage(Mat* firstImage, Mat* opticalFlow)
 {
 	Mat outputImage = Mat_<Vec3b>(firstImage->rows, firstImage->cols);
-
-	std::ofstream myfile;
-	myfile.open("opticalFlow.txt");
-	myfile << *opticalFlow;
-	myfile.close();
 
 	for (int cY = 0; cY < firstImage->rows; cY++)
 		for (int cX = 0; cX < firstImage->cols; cX++)
