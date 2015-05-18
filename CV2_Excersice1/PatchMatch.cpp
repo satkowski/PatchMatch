@@ -25,10 +25,7 @@ void calculateOpticalFlow(Mat* firstImage, Mat* secondImage, int windowSize)
 				// RandomSearch step: Change tha last offset to the computed best offset
 				opticalFlow.at<Point>(cY, cX) = randomSearchAlg(&tempFirstImage, &tempSecondImage, windowSize, Point(cX, cY), actualOffset);
 			}
-
-		outputImage = warpImage(firstImage, &opticalFlow);
-		saveImage(&outputImage, "Iteration_" + std::to_string(iterationIndex) + ".jpeg");
-		outputImage = warpImage(firstImage, &actualOpticalFlow, "OpticalFlow_" + std::to_string(iterationIndex) + ".txt");
+		outputImage = warpImage(firstImage, &opticalFlow, "OpticalFlow_" + std::to_string(iterationIndex) + ".txt");
 		saveImage(&outputImage, "WarpedImage_" + std::to_string(iterationIndex) + ".jpeg");
 		// Cancel the next part if the number of Iterations is reached
 		if (++iterationIndex >= ITERATION_TIMES)
@@ -46,10 +43,7 @@ void calculateOpticalFlow(Mat* firstImage, Mat* secondImage, int windowSize)
 				// RandomSearch step: Change tha last offset to the computed best offset
 				opticalFlow.at<Point>(cY, cX) = randomSearchAlg(&tempFirstImage, &tempSecondImage, windowSize, Point(cX, cY), actualOffsetPair);
 			}
-
-		outputImage = warpImage(firstImage, &opticalFlow);
-		saveImage(&outputImage, "Iteration_" + std::to_string(iterationIndex) + ".jpeg");
-		outputImage = warpImage(firstImage, &actualOpticalFlow, "OpticalFlow_" + std::to_string(iterationIndex) + ".txt");
+		outputImage = warpImage(firstImage, &opticalFlow, "OpticalFlow_" + std::to_string(iterationIndex) + ".txt");
 		saveImage(&outputImage, "WarpedImage_" + std::to_string(iterationIndex) + ".jpeg");
 	}
 }
