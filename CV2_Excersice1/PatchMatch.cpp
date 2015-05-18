@@ -8,7 +8,8 @@ void calculateOpticalFlow(Mat* firstImage, Mat* secondImage, int windowSize)
 	firstImage->convertTo(tempFirstImage, CV_64FC3);
 	secondImage->convertTo(tempSecondImage, CV_64FC3);
 
-	Mat opticalFlow = createInitialization(firstImage);
+	Mat lastOpticalFlow = Mat_<Point>(firstImage->rows, firstImage->cols);
+	Mat actualOpticalFlow = createInitialization(firstImage);
 
 	// Loop for all iterations
 	for (int iterationIndex = 0; iterationIndex < ITERATION_TIMES; iterationIndex++)
@@ -20,14 +21,23 @@ void calculateOpticalFlow(Mat* firstImage, Mat* secondImage, int windowSize)
 			for (int cX = 0; cX < firstImage->cols; cX++)
 			{
 				// Propagation step
-				std::pair<Point, double> actualOffset = propagationAlg(&tempFirstImage, &tempSecondImage, windowSize, 
-																	   PROPAGATION_EVEN, Point(cX, cY), opticalFlow.at<Point>(cY, cX));
+				// Do only if the offset has changed
+				std::pair<Point, double> actualOffsetPair;
+				if (lastOpticalFlow.at<Point>(cY, cX) != actualOpticalFlow.at<Point>(cY, cX))
+					actualOffsetPair = propagationAlg(&tempFirstImage, &tempSecondImage, windowSize, 
+													  PROPAGATION_EVEN, Point(cX, cY), actualOpticalFlow.at<Point>(cY, cX));
+				else
+					actualOffsetPair = std::pair<Point, double>(Point(cX, cY),
+																colorSSD(&tempFirstImage, &tempSecondImage, Point(cY, cX), windowSize, actualOpticalFlow.at<Point>(cY, cX)));
+
+				// Save the last offset to control if something changed
+				lastOpticalFlow.at<Point>(cY, cX) = actualOpticalFlow.at<Point>(cY, cX);
 				// RandomSearch step: Change tha last offset to the computed best offset
-				opticalFlow.at<Point>(cY, cX) = randomSearchAlg(&tempFirstImage, &tempSecondImage, windowSize, Point(cX, cY), actualOffset);
+				actualOpticalFlow.at<Point>(cY, cX) = randomSearchAlg(&tempFirstImage, &tempSecondImage, windowSize, Point(cX, cY), actualOffsetPair);
 			}
 
-		outputImage = warpImage(firstImage, &opticalFlow);
-		saveImage(&outputImage, "Output/Iteration_" + std::to_string(iterationIndex) + ".jpeg");
+		outputImage = warpImage(firstImage, &actualOpticalFlow, "OpticalFlow_" + std::to_string(iterationIndex) + ".txt");
+		saveImage(&outputImage, "WarpedImage_" + std::to_string(iterationIndex) + ".jpeg");
 		// Cancel the next part if the number of Iterations is reached
 		if (++iterationIndex >= ITERATION_TIMES)
 			break;
@@ -39,14 +49,24 @@ void calculateOpticalFlow(Mat* firstImage, Mat* secondImage, int windowSize)
 			for (int cX = firstImage->cols - 1; cX > 0; cX--)
 			{
 				// Propagation step
-				std::pair<Point, double> actualOffsetPair = propagationAlg(&tempFirstImage, &tempSecondImage, windowSize,
-																		   PROPAGATION_ODD, Point(cX, cY), opticalFlow.at<Point>(cY, cX));
+				// Do only if the offset has changed
+				std::pair<Point, double> actualOffsetPair;
+				if (lastOpticalFlow.at<Point>(cY, cX) != actualOpticalFlow.at<Point>(cY, cX))
+					actualOffsetPair = propagationAlg(&tempFirstImage, &tempSecondImage, windowSize,
+													  PROPAGATION_EVEN, Point(cX, cY), actualOpticalFlow.at<Point>(cY, cX));
+				else
+					actualOffsetPair = std::pair<Point, double>(Point(cX, cY),
+																colorSSD(&tempFirstImage, &tempSecondImage, Point(cY, cX), windowSize, actualOpticalFlow.at<Point>(cY, cX)));
+
+				// Save the last offset to control if something changed
+				lastOpticalFlow.at<Point>(cY, cX) = actualOpticalFlow.at<Point>(cY, cX);
 				// RandomSearch step: Change tha last offset to the computed best offset
-				opticalFlow.at<Point>(cY, cX) = randomSearchAlg(&tempFirstImage, &tempSecondImage, windowSize, Point(cX, cY), actualOffsetPair);
+				lastOpticalFlow.at<Point>(cY, cX) = actualOpticalFlow.at<Point>(cY, cX);
+				actualOpticalFlow.at<Point>(cY, cX) = randomSearchAlg(&tempFirstImage, &tempSecondImage, windowSize, Point(cX, cY), actualOffsetPair);
 			}
 
-		outputImage = warpImage(firstImage, &opticalFlow);
-		saveImage(&outputImage, "Output/Iteration_" + std::to_string(iterationIndex) + ".jpeg");
+		outputImage = warpImage(firstImage, &actualOpticalFlow, "OpticalFlow_" + std::to_string(iterationIndex) + ".txt");
+		saveImage(&outputImage, "WarpedImage_" + std::to_string(iterationIndex) + ".jpeg");
 	}
 }
 
@@ -111,6 +131,7 @@ Point randomSearchAlg(Mat* firstImage, Mat* secondImage, int windowSize, Point a
 	int iteration = 0;
 	int maxSearchRadius = max(firstImage->rows, firstImage->cols) / 2;
 	vector<pair<Point, double> > randomPointsList;
+	pair<Point, double> bestOffsetPair = actualOffsetPair;
 	// Iterate while maxSearchRadius * SEARCH_RATIO^iteration < 1
 	do
 	{
@@ -119,36 +140,40 @@ Point randomSearchAlg(Mat* firstImage, Mat* secondImage, int windowSize, Point a
 		randomPoint *= maxSearchRadius*pow(SEARCH_RATIO, iteration++);
 		Point randomOffset = Point(static_cast<int>(randomPoint.x) + actualOffsetPair.first.x, 
 								   static_cast<int>(randomPoint.y) + actualOffsetPair.first.y);
-		randomPointsList.push_back(pair<Point, double>(randomOffset, 
-													   colorSSD(firstImage, secondImage, actualPoint, windowSize, randomOffset)));
+		pair<Point, double> randomOffsetPair = pair<Point, double>(randomOffset,
+																   colorSSD(firstImage, secondImage, actualPoint, windowSize, randomOffset));
+		// Choose the best offset and test if it is better than the actual one
+		if (randomOffsetPair.second < bestOffsetPair.second)
+			bestOffsetPair = randomOffsetPair;
 	}
 	while (maxSearchRadius*pow(SEARCH_RATIO, iteration) >= 1);
 
-	// Choose the best offset and test if it is better than the actual one
-	pair<Point, double> minOffsetPair = pair<Point, double>(Point(0, 0), numeric_limits<double>::infinity());
-	while (randomPointsList.size() > 0)
-	{
-		minOffsetPair = (randomPointsList.back().second < minOffsetPair.second) ? randomPointsList.back() : minOffsetPair;
-		randomPointsList.pop_back();
-	}
-	if (minOffsetPair.second < actualOffsetPair.second)
-		actualOffsetPair = minOffsetPair;
-
 	//printf(" - End\n");
-	return actualOffsetPair.first;
+	return bestOffsetPair.first;
 }
 
-Mat warpImage(Mat* firstImage, Mat* opticalFlow)
+Mat warpImage(Mat* firstImage, Mat* opticalFlow, String filename)
 {
+	std::ofstream myfile;
+	myfile.open(filename);
+	myfile << *opticalFlow;
+	myfile.close();
+
 	Mat outputImage = Mat_<Vec3b>(firstImage->rows, firstImage->cols);
 
 	for (int cY = 0; cY < firstImage->rows; cY++)
 		for (int cX = 0; cX < firstImage->cols; cX++)
 		{
-			//Point testIn = opticalFlow->at<Point>(cY, cX);
-			//Point testOut = Point(opticalFlow->at<Point>(cY, cX).x + cX, opticalFlow->at<Point>(cY, cX).y + cY);
+			Point testIn = opticalFlow->at<Point>(cY, cX);
+			Point testOut = Point(opticalFlow->at<Point>(cY, cX).x + cX, opticalFlow->at<Point>(cY, cX).y + cY);
+			try {
 			outputImage.at<Vec3b>(opticalFlow->at<Point>(cY, cX).y + cY, opticalFlow->at<Point>(cY, cX).x + cX)
 				= firstImage->at<Vec3b>(cY, cX);
+			}
+			catch (Exception e) 
+			{
+				printf("");
+			}
 		}
 
 	return outputImage;

@@ -4,7 +4,6 @@
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <list>
-#include <map>
 #include <iostream>
 #include <fstream>
 
@@ -21,7 +20,7 @@ cv::Mat createInitialization(const cv::Mat* firstImage);
 std::pair<cv::Point, double> propagationAlg(cv::Mat* firstImage, cv::Mat* secondImage, int windowSize, int propegationDirection, cv::Point actualPoint, cv::Point actualOffset);
 cv::Point randomSearchAlg(cv::Mat* firstImage, cv::Mat* secondImage, int windowSize, cv::Point actualPoint, std::pair<cv::Point, double> actualOffset);
 
-cv::Mat warpImage(cv::Mat* firstImage, cv::Mat* opticalFlow);
+cv::Mat warpImage(cv::Mat* firstImage, cv::Mat* opticalFlow, cv::String filename);
 void saveImage(cv::Mat* outputImage, cv::String fileName);
 
 #endif // !PATCHMATCH_H

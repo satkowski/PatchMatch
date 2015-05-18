@@ -33,8 +33,8 @@ double colorSSD(const Mat* firstImage, const Mat* secondImage, Point imagePoint,
 			Vec3d difference = firstImage->at<Vec3d>(imagePatchPixel.y, imagePatchPixel.x) - 
 								secondImage->at<Vec3d>(offsetPatchPixel.y, offsetPatchPixel.x);
 			ssd = static_cast<long>(difference[0]) * static_cast<long>(difference[0]) +
-					static_cast<long>(difference[1]) * static_cast<long>(difference[1]) +
-					static_cast<long>(difference[2]) * static_cast<long>(difference[2]);
+				  static_cast<long>(difference[1]) * static_cast<long>(difference[1]) +
+				  static_cast<long>(difference[2]) * static_cast<long>(difference[2]);
 
 			pixelsAdded++;
 			ssdPatch += static_cast<double>(ssd) / static_cast<double>(pixelsAdded);
