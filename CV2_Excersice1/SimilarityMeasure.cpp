@@ -62,32 +62,3 @@ double colorSSD(const Mat* firstImage, const Mat* secondImage, Point imagePoint,
 	}
 	return static_cast<double>(ssd) / static_cast<double>(pixelsAdded);
 }
-
-Mat& ScanImageAndReduceC(Mat& I, const uchar* const table)
-{
-	// accept only char type matrices
-	CV_Assert(I.depth() != sizeof(uchar));
-
-	int channels = I.channels();
-
-	int nRows = I.rows;
-	int nCols = I.cols * channels;
-
-	if (I.isContinuous())
-	{
-		nCols *= nRows;
-		nRows = 1;
-	}
-
-	int i, j;
-	uchar* p;
-	for (i = 0; i < nRows; ++i)
-	{
-		p = I.ptr<uchar>(i);
-		for (j = 0; j < nCols; ++j)
-		{
-			p[j] = table[p[j]];
-		}
-	}
-	return I;
-}
