@@ -17,14 +17,18 @@ void calculateOpticalFlow(Mat* firstImage, Mat* secondImage, int windowSize)
 		// Iteration of all pixels/patches
 		// EVEN Iteration
 		for (int cY = 0; cY < firstImage->rows; cY++)
+		{
+			// Creating pointer
+			Point* opticalFlowRowP = opticalFlow.ptr<Point>(cY);
 			for (int cX = 0; cX < firstImage->cols; cX++)
 			{
 				// Propagation step
-				std::pair<Point, double> actualOffset = propagationAlg(&tempFirstImage, &tempSecondImage, windowSize, 
-																	   PROPAGATION_EVEN, Point(cX, cY), opticalFlow.at<Point>(cY, cX));
+				std::pair<Point, double> actualOffset = propagationAlg(&tempFirstImage, &tempSecondImage, windowSize,
+																	   PROPAGATION_EVEN, Point(cX, cY), opticalFlowRowP[cX]);
 				// RandomSearch step: Change tha last offset to the computed best offset
-				opticalFlow.at<Point>(cY, cX) = randomSearchAlg(&tempFirstImage, &tempSecondImage, windowSize, Point(cX, cY), actualOffset);
+				opticalFlowRowP[cX] = randomSearchAlg(&tempFirstImage, &tempSecondImage, windowSize, Point(cX, cY), actualOffset);
 			}
+		}
 		outputImage = warpImage(firstImage, &opticalFlow, "OpticalFlow_" + std::to_string(iterationIndex) + ".txt");
 		saveImage(&outputImage, "WarpedImage_" + std::to_string(iterationIndex) + ".jpeg");
 		// Cancel the next part if the number of Iterations is reached
@@ -35,14 +39,18 @@ void calculateOpticalFlow(Mat* firstImage, Mat* secondImage, int windowSize)
 		// Iteration of all pixels/patches
 		// ODD Iteration
 		for (int cY = firstImage->rows - 1; cY > 0; cY--)
+		{
+			// Creating pointer
+			Point* opticalFlowRowP = opticalFlow.ptr<Point>(cY);
 			for (int cX = firstImage->cols - 1; cX > 0; cX--)
 			{
 				// Propagation step
 				std::pair<Point, double> actualOffsetPair = propagationAlg(&tempFirstImage, &tempSecondImage, windowSize,
-																		   PROPAGATION_ODD, Point(cX, cY), opticalFlow.at<Point>(cY, cX));
+																		   PROPAGATION_ODD, Point(cX, cY), opticalFlowRowP[cX]);
 				// RandomSearch step: Change tha last offset to the computed best offset
-				opticalFlow.at<Point>(cY, cX) = randomSearchAlg(&tempFirstImage, &tempSecondImage, windowSize, Point(cX, cY), actualOffsetPair);
+				opticalFlowRowP[cX] = randomSearchAlg(&tempFirstImage, &tempSecondImage, windowSize, Point(cX, cY), actualOffsetPair);
 			}
+		}
 		outputImage = warpImage(firstImage, &opticalFlow, "OpticalFlow_" + std::to_string(iterationIndex) + ".txt");
 		saveImage(&outputImage, "WarpedImage_" + std::to_string(iterationIndex) + ".jpeg");
 	}
@@ -65,14 +73,18 @@ Mat createInitialization(const Mat* firstImage)
 
 	// Pair all points with random point in the set
 	for (int cY = 0; cY < firstImage->rows; cY++)
+	{
+		Point* opticalFlowRowP = initializationOpticalFlow.ptr<Point>(cY);
+
 		for (int cX = 0; cX < firstImage->cols; cX++)
 		{
 			// Search for a random point in the set and delete it from there
 			Point randomPoint = avaiblePointList.back();
 			avaiblePointList.pop_back();
 			// Add the random point as offset to the matrix
-			initializationOpticalFlow.at<Point>(cY, cX) = Point(randomPoint.x - cX, randomPoint.y - cY);
+			opticalFlowRowP[cX] = Point(randomPoint.x - cX, randomPoint.y - cY);
 		}
+	}
 
 	printf(" - End\n");
 	return initializationOpticalFlow;
@@ -140,19 +152,17 @@ Mat warpImage(Mat* firstImage, Mat* opticalFlow, String filename)
 	Mat outputImage = Mat_<Vec3b>(firstImage->rows, firstImage->cols);
 
 	for (int cY = 0; cY < firstImage->rows; cY++)
+	{
+		// Creating pointer
+		Point* opticalFlowRowP = opticalFlow->ptr<Point>(cY);
+		Vec3b* inputImageRowP = firstImage->ptr<Vec3b>(cY);
+
 		for (int cX = 0; cX < firstImage->cols; cX++)
 		{
-			Point testIn = opticalFlow->at<Point>(cY, cX);
-			Point testOut = Point(opticalFlow->at<Point>(cY, cX).x + cX, opticalFlow->at<Point>(cY, cX).y + cY);
-			try {
-			outputImage.at<Vec3b>(opticalFlow->at<Point>(cY, cX).y + cY, opticalFlow->at<Point>(cY, cX).x + cX)
-				= firstImage->at<Vec3b>(cY, cX);
+			Point actualFlow = opticalFlowRowP[cX];
+			outputImage.ptr<Vec3b>(actualFlow.y + cY)[actualFlow.x + cX] = inputImageRowP[cX];
 		}
-			catch (Exception e) 
-			{
-				printf("");
-			}
-		}
+	}
 
 	return outputImage;
 }

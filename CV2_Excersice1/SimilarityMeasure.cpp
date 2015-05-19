@@ -13,35 +13,81 @@ double colorSSD(const Mat* firstImage, const Mat* secondImage, Point imagePoint,
 		imagePoint.x + offset.x >= secondImage->cols || imagePoint.y + offset.y >= secondImage->rows)
 		return std::numeric_limits<double>::infinity();
 
-	double ssdPatch = 0;
+	int imageRows = firstImage->rows;
+	int imageCols = firstImage->cols * firstImage->channels();
+
+	long ssd = 0;
+	int pixelsAdded = 0;
 	// Iterate through the patch
 	for (int cY = -windowSize; cY < windowSize; cY++)
+	{
+		Point imagePatchPixel = Point();
+		Point offsetPatchPixel = Point();
+		imagePatchPixel.y = imagePoint.y + cY;
+		offsetPatchPixel.y = imagePoint.y + offset.y + cY;
+
+		// Try if all pixel are inside the image
+		if (imagePatchPixel.y < 0 || imagePatchPixel.y >= firstImage->rows ||
+			offsetPatchPixel.y < 0 || offsetPatchPixel.y >= secondImage->rows)
+			continue;
+
+		// Create the pointer on the rows of the images
+		const double* firstImageRowP = firstImage->ptr<double>(imagePatchPixel.y);
+		const double* secondImageRowP = secondImage->ptr<double>(offsetPatchPixel.y);
+
 		for (int cX = -windowSize; cX < windowSize; cX++)
 		{
-			long ssd;
-			int pixelsAdded = 0;
-			Point imagePatchPixel = Point(imagePoint.x + cX, imagePoint.y + cY);
-			Point offsetPatchPixel = Point(imagePoint.x + offset.x + cX, imagePoint.y + offset.y + cY);
+			imagePatchPixel.x = imagePoint.x + cX;
+			offsetPatchPixel.x = imagePoint.x + offset.x + cX;
 
 			// Try if all pixel are inside the image
 			if (imagePatchPixel.x < 0 || imagePatchPixel.x >= firstImage->cols ||
-				imagePatchPixel.y < 0 || imagePatchPixel.y >= firstImage->rows ||
-				offsetPatchPixel.x < 0 || offsetPatchPixel.x >= secondImage->cols ||
-				offsetPatchPixel.y < 0 || offsetPatchPixel.y >= secondImage->rows)
+				offsetPatchPixel.x < 0 || offsetPatchPixel.x >= secondImage->cols)
 				continue;
-
-			Vec3d difference = firstImage->at<Vec3d>(imagePatchPixel.y, imagePatchPixel.x) - 
-								secondImage->at<Vec3d>(offsetPatchPixel.y, offsetPatchPixel.x);
-			ssd = static_cast<long>(difference[0]) * static_cast<long>(difference[0]) +
-				  static_cast<long>(difference[1]) * static_cast<long>(difference[1]) +
-				  static_cast<long>(difference[2]) * static_cast<long>(difference[2]);
-
+			// Use the pointer to the rows/pointer to get the values
+			Vec3d firstImageVec = Vec3d(firstImageRowP[imagePatchPixel.x * 3],
+										firstImageRowP[imagePatchPixel.x * 3 + 1],
+										firstImageRowP[imagePatchPixel.x * 3 + 2]);
+			Vec3d secondImageVec = Vec3d(secondImageRowP[offsetPatchPixel.x * 3],
+										 secondImageRowP[offsetPatchPixel.x * 3 + 1],
+										 secondImageRowP[offsetPatchPixel.x * 3 + 2]);
+			// Calculate the difference between the both values
+			Vec3d difference = firstImageVec - secondImageVec;
+			ssd += static_cast<long>(difference[0]) * static_cast<long>(difference[0]) +
+				   static_cast<long>(difference[1]) * static_cast<long>(difference[1]) +
+				   static_cast<long>(difference[2]) * static_cast<long>(difference[2]);
 			pixelsAdded++;
-			ssdPatch += static_cast<double>(ssd) / static_cast<double>(pixelsAdded);
 		}
 
-	if (ssdPatch == 0)
-		return -1;
+	}
+	return static_cast<double>(ssd) / static_cast<double>(pixelsAdded);
+}
 
-	return ssdPatch;
+Mat& ScanImageAndReduceC(Mat& I, const uchar* const table)
+{
+	// accept only char type matrices
+	CV_Assert(I.depth() != sizeof(uchar));
+
+	int channels = I.channels();
+
+	int nRows = I.rows;
+	int nCols = I.cols * channels;
+
+	if (I.isContinuous())
+	{
+		nCols *= nRows;
+		nRows = 1;
+	}
+
+	int i, j;
+	uchar* p;
+	for (i = 0; i < nRows; ++i)
+	{
+		p = I.ptr<uchar>(i);
+		for (j = 0; j < nCols; ++j)
+		{
+			p[j] = table[p[j]];
+		}
+	}
+	return I;
 }
