@@ -62,3 +62,36 @@ double colorSSD(const Mat* firstImage, const Mat* secondImage, Point imagePoint,
 	}
 	return static_cast<double>(ssd) / static_cast<double>(pixelsAdded);
 }
+
+Mat createInitializationForColorSSD(const Mat* firstImage)
+{
+	using namespace std;
+	printf("Initialization: Start");
+
+	Mat initializationOpticalFlow = Mat_<Point>(firstImage->rows, firstImage->cols);
+	vector<Point> avaiblePointList;
+
+	// Fill the set with all avaible points
+	for (int cY = 0; cY < firstImage->rows; cY++)
+		for (int cX = 0; cX < firstImage->cols; cX++)
+			avaiblePointList.push_back(Point(cX, cY));
+
+	random_shuffle(avaiblePointList.begin(), avaiblePointList.end());
+
+	// Pair all points with random point in the set
+	for (int cY = 0; cY < firstImage->rows; cY++)
+	{
+		Point* opticalFlowRowP = initializationOpticalFlow.ptr<Point>(cY);
+
+		for (int cX = 0; cX < firstImage->cols; cX++)
+		{
+			// Search for a random point in the set and delete it from there
+			Point randomPoint = avaiblePointList.back();
+			avaiblePointList.pop_back();
+			// Add the random point as offset to the matrix
+			opticalFlowRowP[cX] = Point(randomPoint.x - cX, randomPoint.y - cY);
+		}
+	}
+	printf(" - End\n");
+	return initializationOpticalFlow;
+}

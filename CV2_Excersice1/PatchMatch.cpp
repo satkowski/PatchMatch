@@ -8,7 +8,7 @@ void calculateOpticalFlow(Mat* firstImage, Mat* secondImage, int windowSize)
 	firstImage->convertTo(tempFirstImage, CV_64FC3);
 	secondImage->convertTo(tempSecondImage, CV_64FC3);
 
-	Mat opticalFlow = createInitialization(firstImage);
+	Mat opticalFlow = createInitializationForColorSSD(firstImage);
 
 	// Loop for all iterations
 	for (int iterationIndex = 0; iterationIndex < ITERATION_TIMES; iterationIndex++)
@@ -54,40 +54,7 @@ void calculateOpticalFlow(Mat* firstImage, Mat* secondImage, int windowSize)
 		outputImage = warpImage(firstImage, &opticalFlow, "OpticalFlow_" + std::to_string(iterationIndex) + ".txt");
 		saveImage(&outputImage, "WarpedImage_" + std::to_string(iterationIndex) + ".jpeg");
 	}
-}
-
-Mat createInitialization(const Mat* firstImage)
-{
-	using namespace std;
-	printf("Initialization: Start");
-
-	Mat initializationOpticalFlow = Mat_<Point>(firstImage->rows, firstImage->cols);
-	vector<Point> avaiblePointList;
-	
-	// Fill the set with all avaible points
-	for (int cY = 0; cY < firstImage->rows; cY++)
-		for (int cX = 0; cX < firstImage->cols; cX++)
-			avaiblePointList.push_back(Point(cX, cY)); 
-
-	random_shuffle(avaiblePointList.begin(), avaiblePointList.end());
-
-	// Pair all points with random point in the set
-	for (int cY = 0; cY < firstImage->rows; cY++)
-	{
-		Point* opticalFlowRowP = initializationOpticalFlow.ptr<Point>(cY);
-
-		for (int cX = 0; cX < firstImage->cols; cX++)
-		{
-			// Search for a random point in the set and delete it from there
-			Point randomPoint = avaiblePointList.back();
-			avaiblePointList.pop_back();
-			// Add the random point as offset to the matrix
-			opticalFlowRowP[cX] = Point(randomPoint.x - cX, randomPoint.y - cY);
-		}
-	}
-
-	printf(" - End\n");
-	return initializationOpticalFlow;
+	//toFlowFile(&opticalFlow, "test");
 }
 
 std::pair<Point, double> propagationAlg(Mat* firstImage, Mat* secondImage, int windowSize, int propegationDirection, Point actualPoint, Point actualOffset)
@@ -171,3 +138,37 @@ void saveImage(Mat* outputImage, String fileName)
 {
 	imwrite(fileName, *outputImage);
 }
+
+//void toFlowFile(Mat* opticalFlow, String filename)
+//{
+//	int opticalFlowRow = opticalFlow->rows;
+//	int opticalFlowCol = opticalFlow->cols;
+//
+//	std::cout << opticalFlowRow << "," << opticalFlowCol << std::endl;
+//
+//	// combine path + filename to an arg for fopen
+//	String combinedFn = /*m_outPath + "/" +*/ filename;
+//	std::FILE *stream = std::fopen(combinedFn.c_str(), "wb");
+//
+//	// write the header
+//	fprintf(stream, "PIEH");
+//	fwrite(&opticalFlowCol, sizeof(int), 1, stream);
+//	fwrite(&opticalFlowRow, sizeof(int), 1, stream);
+//
+//	for (int cY = 0; cY < opticalFlowRow; cY++)
+//	{
+//		// Create pointer
+//		Point* opticalFlowRowP = opticalFlow->ptr<Point>(cY);
+//		for (int cX = 0; cX < opticalFlowCol; cX++)
+//		{
+//			float band0 = (float)opticalFlowRowP[cX].x;
+//			fwrite(&band0, sizeof(float), 1, stream);
+//
+//			float band1 = (float)opticalFlowRowP[cX].y;
+//			fwrite(&band1, sizeof(float), 1, stream);
+//		}
+//	}
+//
+//	// close the file
+//	fclose(stream);
+//}
