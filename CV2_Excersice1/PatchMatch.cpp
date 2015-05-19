@@ -11,7 +11,7 @@ void calculateOpticalFlow(Mat* firstImage, Mat* secondImage, int windowSize)
 	Mat opticalFlow = createInitializationForColorSSD(firstImage);
 
 	// Loop for all iterations
-	for (int iterationIndex = 0; iterationIndex < ITERATION_TIMES; iterationIndex++)
+	for (int iterationIndex = 0; iterationIndex < ITERATION_PATCHMATCH; iterationIndex++)
 	{
 		printf("Iteration %d\n", iterationIndex);
 		// Iteration of all pixels/patches
@@ -32,7 +32,7 @@ void calculateOpticalFlow(Mat* firstImage, Mat* secondImage, int windowSize)
 		outputImage = warpImage(firstImage, &opticalFlow, "OpticalFlow_" + std::to_string(iterationIndex) + ".txt");
 		saveImage(&outputImage, "WarpedImage_" + std::to_string(iterationIndex) + ".jpeg");
 		// Cancel the next part if the number of Iterations is reached
-		if (++iterationIndex >= ITERATION_TIMES)
+		if (++iterationIndex >= ITERATION_PATCHMATCH)
 			break;
 
 		printf("Iteration %d\n", iterationIndex);

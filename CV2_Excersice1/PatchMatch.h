@@ -9,7 +9,7 @@
 
 #include "SimilarityMeasure.h"
 
-#define ITERATION_TIMES 5
+#define ITERATION_PATCHMATCH 5
 #define SEARCH_RATIO 0.5
 #define PROPAGATION_EVEN 1
 #define PROPAGATION_ODD -1
