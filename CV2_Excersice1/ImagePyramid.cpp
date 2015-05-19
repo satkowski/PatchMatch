@@ -10,8 +10,11 @@ void calculateImagePiramide(Mat* firstImage, Mat* secondImage, int windowSize)
 	secondImage->copyTo(pyramideSecondI);
 	Mat opticalFlow = Mat_<Point>(0, 0);
 	
-	pyrDown(tempImage, pyramideFirstI, Size(static_cast<int>(tempImage.cols / 16), static_cast<int>(tempImage.rows / 16)));
-	pyrDown(tempImage, pyramideFirstI, Size(static_cast<int>(tempImage.cols / 16), static_cast<int>(tempImage.rows / 16)));
+	// Downsampling both images
+	pyrDown(tempImage, pyramideFirstI, Size(static_cast<int>(tempImage.cols / pow(2, ITERATION_IMAGEPYRAMID)), 
+											static_cast<int>(tempImage.rows / pow(2, ITERATION_IMAGEPYRAMID))));
+	pyrDown(tempImage, pyramideFirstI, Size(static_cast<int>(tempImage.cols / pow(2, ITERATION_IMAGEPYRAMID)), 
+											static_cast<int>(tempImage.rows / pow(2, ITERATION_IMAGEPYRAMID))));
 
 	for (int iterationIndex = 1; iterationIndex <= ITERATION_IMAGEPYRAMID; iterationIndex++)
 	{
@@ -39,7 +42,7 @@ void calculateImagePiramide(Mat* firstImage, Mat* secondImage, int windowSize)
 			for (int cX = 0; cX < tempOpticalFlow.cols; cX++)
 			{
 				Point actualFlow = tempOpticalFlowRowP[cX];
-
+				// Expand the existing flow on all four pixels
 				opticalFlowRowP1[cX * 2] = actualFlow;
 				opticalFlowRowP1[cX * 2 + 1] = actualFlow;
 				opticalFlowRowP2[cX * 2] = actualFlow;
