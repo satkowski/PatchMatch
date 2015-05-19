@@ -7,6 +7,7 @@
 #include <cstdlib>
 
 #include "PatchMatch.h"
+#include "ImagePyramid.h"
 
 int main (int argc, const char** argv);
 

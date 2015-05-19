@@ -7,12 +7,14 @@ int main (int argc, const char** argv)
 {
 	const char* keyMap;
 	// Creating a keymap for all the arguments that can passed to that programm
-	keyMap = "{path1 | | }"
-			 "{path2 | | }"
+	keyMap = "{func   |1 |1 }"
+			 "{path1  | | }"
+			 "{path2  | | }"
 			 "{window |1 |2 }";
 
 	// Reading the calling arguments
 	CommandLineParser parser (argc, argv, keyMap);
+	int functionDecision = parser.get<int>("func");
 	String inputFileName1 = parser.get<String>("path1");
 	String inputFileName2 = parser.get<String>("path2");
 	int inputWindowSize = parser.get<int>("window");
@@ -35,10 +37,17 @@ int main (int argc, const char** argv)
 	srand(static_cast<unsigned>(time(0)));
 
 
-
-	printf("Start the PatchMatch\n");
-
-	calculateOpticalFlow(&inputImage1, &inputImage2, inputWindowSize);
-
-	printf("Finished PatchMatch\n");
+	switch (functionDecision)
+	{
+	case 1:	
+		printf("Start the PatchMatch\n");
+		calculateOpticalFlow(&inputImage1, &inputImage2, inputWindowSize);
+		printf("Finished PatchMatch\n");
+		break;
+	case 2:
+		printf("Start the ImagePyramid\n");
+		calculateImagePiramide(&inputImage1, &inputImage2, inputWindowSize);
+		printf("Finished ImagePyramid\n");
+		break;
+	}
 }
