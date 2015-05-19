@@ -2,13 +2,17 @@
 
 using namespace cv;
 
-void calculateOpticalFlow(Mat* firstImage, Mat* secondImage, int windowSize)
+void calculateOpticalFlow(Mat* firstImage, Mat* secondImage, int windowSize, Mat* inputOpticalFlow)
 {
-	Mat tempFirstImage, tempSecondImage, outputImage;
+	Mat tempFirstImage, tempSecondImage, outputImage, opticalFlow;
 	firstImage->convertTo(tempFirstImage, CV_64FC3);
 	secondImage->convertTo(tempSecondImage, CV_64FC3);
 
-	Mat opticalFlow = createInitializationForColorSSD(firstImage);
+	// Create an new random optical flow is empty or the pointer doesn't exists
+	if (inputOpticalFlow->cols == 0 && inputOpticalFlow->rows == 0 || inputOpticalFlow == nullptr)	
+		opticalFlow = createInitializationForColorSSD(firstImage);
+	else										
+		inputOpticalFlow->copyTo(opticalFlow);
 
 	// Loop for all iterations
 	for (int iterationIndex = 0; iterationIndex < ITERATION_PATCHMATCH; iterationIndex++)
@@ -55,6 +59,7 @@ void calculateOpticalFlow(Mat* firstImage, Mat* secondImage, int windowSize)
 		saveImage(&outputImage, "WarpedImage_" + std::to_string(iterationIndex) + ".jpeg");
 	}
 	//toFlowFile(&opticalFlow, "test");
+	opticalFlow.copyTo(*inputOpticalFlow);
 }
 
 std::pair<Point, double> propagationAlg(Mat* firstImage, Mat* secondImage, int windowSize, int propegationDirection, Point actualPoint, Point actualOffset)

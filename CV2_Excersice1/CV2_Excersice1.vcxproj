@@ -14,7 +14,7 @@
     <ProjectGuid>{77C6DEA3-4166-4B8C-9CE6-E12B7F887DBE}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>CV2_Excersice1</RootNamespace>
-    <ProjectName>PatchMatch</ProjectName>
+    <ProjectName>CV2_Excersice1</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">

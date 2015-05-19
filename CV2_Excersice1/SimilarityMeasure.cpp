@@ -13,9 +13,6 @@ double colorSSD(const Mat* firstImage, const Mat* secondImage, Point imagePoint,
 		imagePoint.x + offset.x >= secondImage->cols || imagePoint.y + offset.y >= secondImage->rows)
 		return std::numeric_limits<double>::infinity();
 
-	int imageRows = firstImage->rows;
-	int imageCols = firstImage->cols * firstImage->channels();
-
 	long ssd = 0;
 	int pixelsAdded = 0;
 	// Iterate through the patch

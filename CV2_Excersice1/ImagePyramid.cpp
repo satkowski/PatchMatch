@@ -8,16 +8,43 @@ void calculateImagePiramide(Mat* firstImage, Mat* secondImage, int windowSize)
 	Mat pyramideFirstI, pyramideSecondI, tempImage;
 	firstImage->copyTo(pyramideFirstI);
 	secondImage->copyTo(pyramideSecondI);
+	Mat opticalFlow = Mat_<Point>(0, 0);
+	
+	pyrDown(tempImage, pyramideFirstI, Size(static_cast<int>(tempImage.cols / 16), static_cast<int>(tempImage.rows / 16)));
+	pyrDown(tempImage, pyramideFirstI, Size(static_cast<int>(tempImage.cols / 16), static_cast<int>(tempImage.rows / 16)));
 
-	for (int iterationIndex = 0; iterationIndex < ITERATION_IMAGEPYRAMID; iterationIndex++)
+	for (int iterationIndex = 1; iterationIndex <= ITERATION_IMAGEPYRAMID; iterationIndex++)
 	{
 		printf("Pyramidplain %d\n", iterationIndex);
-		calculateOpticalFlow(&pyramideFirstI, &pyramideSecondI, windowSize);
+		calculateOpticalFlow(&pyramideFirstI, &pyramideSecondI, windowSize, &opticalFlow);
 
 		// Downsampling both the images
 		pyramideFirstI.copyTo(tempImage);
-		cvPyrDown(&tempImage, &pyramideFirstI);
+		pyrDown(tempImage, pyramideFirstI, Size(static_cast<int>(tempImage.cols / pow(2, ITERATION_IMAGEPYRAMID - iterationIndex)),
+												static_cast<int>(tempImage.rows / pow(2, ITERATION_IMAGEPYRAMID - iterationIndex))));
 		pyramideSecondI.copyTo(tempImage);
-		cvPyrDown(&tempImage, &pyramideSecondI);
+		pyrDown(tempImage, pyramideFirstI, Size(static_cast<int>(tempImage.cols / pow(2, ITERATION_IMAGEPYRAMID - iterationIndex)),
+												static_cast<int>(tempImage.rows / pow(2, ITERATION_IMAGEPYRAMID - iterationIndex))));
+
+		Mat tempOpticalFlow;
+		opticalFlow.copyTo(tempOpticalFlow);
+		opticalFlow = Mat_<Point>(pyramideFirstI.rows, pyramideFirstI.cols);
+		// Upsample the opticalFlow mat
+		for (int cY = 0; cY < tempOpticalFlow.rows; cY++)
+		{
+			// Creating pointer
+			Point* tempOpticalFlowRowP = tempOpticalFlow.ptr<Point>(cY);
+			Point* opticalFlowRowP1 = opticalFlow.ptr<Point>(cY * 2);
+			Point* opticalFlowRowP2 = opticalFlow.ptr<Point>(cY * 2 + 1);
+			for (int cX = 0; cX < tempOpticalFlow.cols; cX++)
+			{
+				Point actualFlow = tempOpticalFlowRowP[cX];
+
+				opticalFlowRowP1[cX * 2] = actualFlow;
+				opticalFlowRowP1[cX * 2 + 1] = actualFlow;
+				opticalFlowRowP2[cX * 2] = actualFlow;
+				opticalFlowRowP2[cX * 2 + 1] = actualFlow;
+			}
+		}
 	}
 }
