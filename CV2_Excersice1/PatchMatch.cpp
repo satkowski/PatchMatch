@@ -2,7 +2,7 @@
 
 using namespace cv;
 
-void calculateOpticalFlow(Mat* firstImage, Mat* secondImage, int windowSize, Mat* inputOpticalFlow)
+void calculateOpticalFlow(Mat* firstImage, Mat* secondImage, int windowSize, Mat* inputOpticalFlow, String filenamePart)
 {
 	Mat tempFirstImage, tempSecondImage, outputImage, opticalFlow;
 	firstImage->convertTo(tempFirstImage, CV_64FC3);
@@ -33,8 +33,8 @@ void calculateOpticalFlow(Mat* firstImage, Mat* secondImage, int windowSize, Mat
 				opticalFlowRowP[cX] = randomSearchAlg(&tempFirstImage, &tempSecondImage, windowSize, Point(cX, cY), actualOffset);
 			}
 		}
-		outputImage = warpImage(firstImage, &opticalFlow, "OpticalFlow_" + std::to_string(iterationIndex) + ".txt");
-		saveImage(&outputImage, "WarpedImage_" + std::to_string(iterationIndex) + ".jpeg");
+		outputImage = warpImage(firstImage, &opticalFlow, filenamePart + "_OpticalFlow_" + std::to_string(iterationIndex) + ".txt");
+		saveImage(&outputImage, filenamePart + "_WarpedImage_" + std::to_string(iterationIndex) + ".jpeg");
 		// Cancel the next part if the number of Iterations is reached
 		if (++iterationIndex >= ITERATION_PATCHMATCH)
 			break;
@@ -55,8 +55,8 @@ void calculateOpticalFlow(Mat* firstImage, Mat* secondImage, int windowSize, Mat
 				opticalFlowRowP[cX] = randomSearchAlg(&tempFirstImage, &tempSecondImage, windowSize, Point(cX, cY), actualOffsetPair);
 			}
 		}
-		outputImage = warpImage(firstImage, &opticalFlow, "OpticalFlow_" + std::to_string(iterationIndex) + ".txt");
-		saveImage(&outputImage, "WarpedImage_" + std::to_string(iterationIndex) + ".jpeg");
+		outputImage = warpImage(firstImage, &opticalFlow, filenamePart + "_OpticalFlow_" + std::to_string(iterationIndex) + ".txt");
+		saveImage(&outputImage, filenamePart + "_WarpedImage_" + std::to_string(iterationIndex) + ".jpeg");
 	}
 	//toFlowFile(&opticalFlow, "test");
 	opticalFlow.copyTo(*inputOpticalFlow);
@@ -116,10 +116,10 @@ Point randomSearchAlg(Mat* firstImage, Mat* secondImage, int windowSize, Point a
 
 Mat warpImage(Mat* firstImage, Mat* opticalFlow, String filename)
 {
-	std::ofstream myfile;
-	myfile.open(filename);
-	myfile << *opticalFlow;
-	myfile.close();
+	//std::ofstream myfile;
+	//myfile.open(filename);
+	//myfile << *opticalFlow;
+	//myfile.close();
 
 	Mat outputImage = Mat_<Vec3b>(firstImage->rows, firstImage->cols);
 

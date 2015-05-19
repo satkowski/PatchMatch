@@ -62,7 +62,7 @@ double colorSSD(const Mat* firstImage, const Mat* secondImage, Point imagePoint,
 Mat createInitializationForColorSSD(const Mat* firstImage)
 {
 	using namespace std;
-	printf("Initialization: Start");
+	printf("OpticalFlow Initialization: Start");
 
 	Mat initializationOpticalFlow = Mat_<Point>(firstImage->rows, firstImage->cols);
 	vector<Point> avaiblePointList;
