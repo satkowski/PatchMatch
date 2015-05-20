@@ -13,10 +13,10 @@ double colorSSD(const Mat* firstImage, const Mat* secondImage, Point imagePoint,
 		imagePoint.x + offset.x >= secondImage->cols || imagePoint.y + offset.y >= secondImage->rows)
 		return std::numeric_limits<double>::infinity();
 
-	long ssd = 0;
+	double ssd = 0;
 	int pixelsAdded = 0;
 	// Iterate through the patch
-	for (int cY = -windowSize; cY < windowSize; cY++)
+	for (int cY = -windowSize; cY <= windowSize; cY++)
 	{
 		Point imagePatchPixel = Point();
 		Point offsetPatchPixel = Point();
@@ -32,7 +32,7 @@ double colorSSD(const Mat* firstImage, const Mat* secondImage, Point imagePoint,
 		const double* firstImageRowP = firstImage->ptr<double>(imagePatchPixel.y);
 		const double* secondImageRowP = secondImage->ptr<double>(offsetPatchPixel.y);
 
-		for (int cX = -windowSize; cX < windowSize; cX++)
+		for (int cX = -windowSize; cX <= windowSize; cX++)
 		{
 			imagePatchPixel.x = imagePoint.x + cX;
 			offsetPatchPixel.x = imagePoint.x + offset.x + cX;
@@ -50,13 +50,13 @@ double colorSSD(const Mat* firstImage, const Mat* secondImage, Point imagePoint,
 										 secondImageRowP[offsetPatchPixel.x * 3 + 2]);
 			// Calculate the difference between the both values
 			Vec3d difference = firstImageVec - secondImageVec;
-			ssd += static_cast<long>(difference[0]) * static_cast<long>(difference[0]) +
-				   static_cast<long>(difference[1]) * static_cast<long>(difference[1]) +
-				   static_cast<long>(difference[2]) * static_cast<long>(difference[2]);
+			ssd += difference[0] * difference[0] +
+				   difference[1] * difference[1] +
+				   difference[2] * difference[2];
 			pixelsAdded++;
 		}
 	}
-	return static_cast<double>(ssd) / static_cast<double>(pixelsAdded);
+	return ssd / static_cast<double>(pixelsAdded);
 }
 
 Mat createInitializationForColorSSD(const Mat* firstImage)
@@ -91,3 +91,24 @@ Mat createInitializationForColorSSD(const Mat* firstImage)
 	printf(" - End\n");
 	return initializationOpticalFlow;
 }
+
+//Mat createInitializationForColorSSD(const Mat* firstImage)
+//{
+//	using namespace cv;
+//	printf("OpticalFlow Initialization: Start");
+//
+//	Mat initializationOpticalFlow = Mat_<Point>(firstImage->rows, firstImage->cols);
+//
+//	for (int cY = 0; cY < firstImage->rows; cY++)
+//	{
+//		// Create pointer
+//		Point* opticalFlowRowP = initializationOpticalFlow.ptr<Point>(cY);
+//		for (int cX = 0; cX < firstImage->cols; cX++)
+//		{
+//			Point randomPoint = Point((rand() % (firstImage->cols)) - cX, (rand() % (firstImage->rows)) - cY);
+//			opticalFlowRowP[cX] = randomPoint;
+//		}
+//	}
+//
+//	return initializationOpticalFlow;
+//}

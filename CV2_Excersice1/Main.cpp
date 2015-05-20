@@ -1,4 +1,4 @@
-// -path1=C:/Users/Marc/Documents/Workspaces/C++_VS/CV2_Excersice1/Ressourcen/frame07.png -path2=C:/Users/Marc/Documents/Workspaces/C++_VS/CV2_Excersice1/Ressourcen/frame08.png -window=3							
+// -func=2 -path1=C:/Users/Marc/Documents/Workspaces/C++_VS/CV2_Excersice1/Ressourcen/frame07.png -path2=C:/Users/Marc/Documents/Workspaces/C++_VS/CV2_Excersice1/Ressourcen/frame08.png -window=3							
 #include "Main.h"
 
 using namespace cv;

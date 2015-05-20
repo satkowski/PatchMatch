@@ -18,16 +18,18 @@ void calculateImagePiramide(Mat* firstImage, Mat* secondImage, int windowSize)
 		pyrDown(firstImages.back(), tempImage, Size(static_cast<int>(firstImages.back().cols / 2),
 													static_cast<int>(firstImages.back().rows / 2)));
 		firstImages.push_back(tempImage);
+		imwrite("IP" + std::to_string(ITERATION_IMAGEPYRAMID - iterationIndex) + "_First.jpeg", firstImages.back());
 		pyrDown(secondImages.back(), tempImage, Size(static_cast<int>(secondImages.back().cols / 2),
 													 static_cast<int>(secondImages.back().rows / 2)));
 		secondImages.push_back(tempImage);
+		imwrite("IP" + std::to_string(ITERATION_IMAGEPYRAMID - iterationIndex) + "_Second.jpeg", secondImages.back());
 	}
 	printf(" - End\n");
 
 	for (int iterationIndex = 0; iterationIndex < ITERATION_IMAGEPYRAMID + 1; iterationIndex++)
 	{
-		printf("Pyramidplain %d\n", iterationIndex);
-		calculateOpticalFlow(&firstImages.back(), &secondImages.back(), windowSize, &opticalFlow, "IP" + std::to_string(iterationIndex));
+ 		printf("Pyramidplain %d\n", iterationIndex);
+		calculateOpticalFlow(&firstImages.back(), &secondImages.back(), windowSize, &opticalFlow, "IP" + std::to_string(iterationIndex) + "_");
 		// Delete the used images
 		firstImages.pop_back();
 		secondImages.pop_back();

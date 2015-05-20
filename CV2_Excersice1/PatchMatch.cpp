@@ -9,7 +9,7 @@ void calculateOpticalFlow(Mat* firstImage, Mat* secondImage, int windowSize, Mat
 	secondImage->convertTo(tempSecondImage, CV_64FC3);
 
 	// Create an new random optical flow is empty or the pointer doesn't exists
-	if (inputOpticalFlow->cols == 0 && inputOpticalFlow->rows == 0 || inputOpticalFlow == nullptr)	
+	if (inputOpticalFlow == nullptr || (inputOpticalFlow->cols == 0 && inputOpticalFlow->rows == 0))
 		opticalFlow = createInitializationForColorSSD(firstImage);
 	else										
 		inputOpticalFlow->copyTo(opticalFlow);
@@ -30,11 +30,12 @@ void calculateOpticalFlow(Mat* firstImage, Mat* secondImage, int windowSize, Mat
 				std::pair<Point, double> actualOffset = propagationAlg(&tempFirstImage, &tempSecondImage, windowSize,
 																	   PROPAGATION_EVEN, Point(cX, cY), opticalFlowRowP[cX]);
 				// RandomSearch step: Change tha last offset to the computed best offset
-				opticalFlowRowP[cX] = randomSearchAlg(&tempFirstImage, &tempSecondImage, windowSize, Point(cX, cY), actualOffset);
+				opticalFlowRowP[cX] = randomSearchAlg(&tempFirstImage, &tempSecondImage, windowSize, Point(cX, cY), actualOffset).first;
+				printf("");
 			}
 		}
-		outputImage = warpImage(firstImage, &opticalFlow, filenamePart + "_OpticalFlow_" + std::to_string(iterationIndex) + ".txt");
-		saveImage(&outputImage, filenamePart + "_WarpedImage_" + std::to_string(iterationIndex) + ".jpeg");
+		outputImage = warpImage(firstImage, &opticalFlow, filenamePart + "OpticalFlow_" + std::to_string(iterationIndex) + ".txt");
+		saveImage(&outputImage, filenamePart + "WarpedImage_" + std::to_string(iterationIndex) + ".jpeg");
 		// Cancel the next part if the number of Iterations is reached
 		if (++iterationIndex >= ITERATION_PATCHMATCH)
 			break;
@@ -52,20 +53,20 @@ void calculateOpticalFlow(Mat* firstImage, Mat* secondImage, int windowSize, Mat
 				std::pair<Point, double> actualOffsetPair = propagationAlg(&tempFirstImage, &tempSecondImage, windowSize,
 																		   PROPAGATION_ODD, Point(cX, cY), opticalFlowRowP[cX]);
 				// RandomSearch step: Change tha last offset to the computed best offset
-				opticalFlowRowP[cX] = randomSearchAlg(&tempFirstImage, &tempSecondImage, windowSize, Point(cX, cY), actualOffsetPair);
+				opticalFlowRowP[cX] = randomSearchAlg(&tempFirstImage, &tempSecondImage, windowSize, Point(cX, cY), actualOffsetPair).first;
+				printf("");
 			}
 		}
-		outputImage = warpImage(firstImage, &opticalFlow, filenamePart + "_OpticalFlow_" + std::to_string(iterationIndex) + ".txt");
-		saveImage(&outputImage, filenamePart + "_WarpedImage_" + std::to_string(iterationIndex) + ".jpeg");
+		outputImage = warpImage(firstImage, &opticalFlow, filenamePart + "OpticalFlow_" + std::to_string(iterationIndex) + ".txt");
+		saveImage(&outputImage, filenamePart + "WarpedImage_" + std::to_string(iterationIndex) + ".jpeg");
 	}
 	//toFlowFile(&opticalFlow, "test");
-	opticalFlow.copyTo(*inputOpticalFlow);
+	if (inputOpticalFlow != nullptr)
+		opticalFlow.copyTo(*inputOpticalFlow);
 }
 
 std::pair<Point, double> propagationAlg(Mat* firstImage, Mat* secondImage, int windowSize, int propegationDirection, Point actualPoint, Point actualOffset)
 {
-	//printf("Propagation: Start");
-
 	Point verticalNeighbourOffset = Point(actualOffset.x, actualOffset.y + propegationDirection);
 	Point horizontalNeighbourOffset = Point(actualOffset.x + propegationDirection, actualOffset.y);
 
@@ -76,32 +77,32 @@ std::pair<Point, double> propagationAlg(Mat* firstImage, Mat* secondImage, int w
 
 	std::pair<Point, double> output;
 	// Decide which has the best energy and save it as new offset/flow
-	if (verticalNeighbourSim <= horizontalNeighbourSim && verticalNeighbourSim < actualSimilarity)
+	if (verticalNeighbourSim < actualSimilarity && verticalNeighbourSim <= horizontalNeighbourSim)
 		output = std::pair<Point, double>(verticalNeighbourOffset, verticalNeighbourSim);
-	else if (horizontalNeighbourSim < verticalNeighbourSim && horizontalNeighbourSim < actualSimilarity)
+	else if (horizontalNeighbourSim < actualSimilarity && horizontalNeighbourSim < verticalNeighbourSim)
 		output = std::pair<Point, double>(horizontalNeighbourOffset, horizontalNeighbourSim);
+	else
+		output = std::pair<Point, double>(actualOffset, actualSimilarity);
 
-	//printf(" - End\n");
 	return output;
 }
 
-Point randomSearchAlg(Mat* firstImage, Mat* secondImage, int windowSize, Point actualPoint, std::pair<Point, double> actualOffsetPair)
+std::pair<Point, double> randomSearchAlg(Mat* firstImage, Mat* secondImage, int windowSize, Point actualPoint, std::pair<Point, double> actualOffsetPair)
 {
 	using namespace std;
 	//printf("RandomSearch: Start");
 
 	int iteration = 0;
 	int maxSearchRadius = max(firstImage->rows, firstImage->cols) / 2;
-	vector<pair<Point, double> > randomPointsList;
 	pair<Point, double> bestOffsetPair = actualOffsetPair;
 	// Iterate while maxSearchRadius * SEARCH_RATIO^iteration < 1
 	do
 	{
-		Point randomPoint = Point_<float>((static_cast<float>(rand()) / static_cast<float>(RAND_MAX / 2)) - 1,
-										  (static_cast<float>(rand()) / static_cast<float>(RAND_MAX / 2)) - 1);
+		Vec2f randomPoint = Vec2f((static_cast<float>(rand()) / static_cast<float>(RAND_MAX / 2)) - 1,
+								  (static_cast<float>(rand()) / static_cast<float>(RAND_MAX / 2)) - 1);
 		randomPoint *= maxSearchRadius*pow(SEARCH_RATIO, iteration++);
-		Point randomOffset = Point(static_cast<int>(randomPoint.x) + actualOffsetPair.first.x, 
-								   static_cast<int>(randomPoint.y) + actualOffsetPair.first.y);
+		Point randomOffset = Point(randomPoint[0] + actualOffsetPair.first.x, 
+								   randomPoint[1] + actualOffsetPair.first.y);
 		pair<Point, double> randomOffsetPair = pair<Point, double>(randomOffset,
 																   colorSSD(firstImage, secondImage, actualPoint, windowSize, randomOffset));
 		// Choose the best offset and test if it is better than the actual one
@@ -111,7 +112,7 @@ Point randomSearchAlg(Mat* firstImage, Mat* secondImage, int windowSize, Point a
 	while (maxSearchRadius*pow(SEARCH_RATIO, iteration) >= 1);
 
 	//printf(" - End\n");
-	return bestOffsetPair.first;
+	return bestOffsetPair;
 }
 
 Mat warpImage(Mat* firstImage, Mat* opticalFlow, String filename)
