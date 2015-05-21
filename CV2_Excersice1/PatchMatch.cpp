@@ -14,6 +14,9 @@ void calculateOpticalFlow(Mat* firstImage, Mat* secondImage, int windowSize, Mat
 	else										
 		inputOpticalFlow->copyTo(opticalFlow);
 
+	outputImage = warpImage(firstImage, &opticalFlow, filenamePart + "OpticalFlow_00.txt");
+	saveImage(&outputImage, filenamePart + "WarpedImage_00.jpeg");
+
 	// Loop for all iterations
 	for (int iterationIndex = 0; iterationIndex < ITERATION_PATCHMATCH; iterationIndex++)
 	{
@@ -31,7 +34,6 @@ void calculateOpticalFlow(Mat* firstImage, Mat* secondImage, int windowSize, Mat
 																	   PROPAGATION_EVEN, Point(cX, cY), opticalFlowRowP[cX], &opticalFlow);
 				// RandomSearch step: Change tha last offset to the computed best offset
 				opticalFlowRowP[cX] = randomSearchAlg(&convFirstImage, &tempSecondImage, windowSize, Point(cX, cY), actualOffset).first;
-				printf("");
 			}
 		}
 		outputImage = warpImage(firstImage, &opticalFlow, filenamePart + "OpticalFlow_" + std::to_string(iterationIndex) + ".txt");
@@ -54,7 +56,6 @@ void calculateOpticalFlow(Mat* firstImage, Mat* secondImage, int windowSize, Mat
 																		   PROPAGATION_ODD, Point(cX, cY), opticalFlowRowP[cX], &opticalFlow);
 				// RandomSearch step: Change tha last offset to the computed best offset
 				opticalFlowRowP[cX] = randomSearchAlg(&convFirstImage, &tempSecondImage, windowSize, Point(cX, cY), actualOffsetPair).first;
-				printf("");
 			}
 		}
 		outputImage = warpImage(firstImage, &opticalFlow, filenamePart + "OpticalFlow_" + std::to_string(iterationIndex) + ".txt");
@@ -76,9 +77,7 @@ std::pair<Point, double> propagationAlg(Mat* firstImage, Mat* secondImage, int w
 	{
 		// Get the offset of the neighbour
 		verticalNeighbourOffset = opticalFlow->ptr<Point>(actualPoint.y + propegationDirection)[actualPoint.x];
-		// Get the vertical neighbour
-		verticalNeighbourOffset.y -propegationDirection;
-		double verticalNeighbourSim = colorSSD(firstImage, secondImage, actualPoint, windowSize, verticalNeighbourOffset);
+		double verticalNeighbourSim = colorSSD(secondImage, secondImage, actualPoint, windowSize, verticalNeighbourOffset);
 	}
 	Point horizontalNeighbourOffset;
 	double horizontalNeighbourSim = std::numeric_limits<double>::infinity();
@@ -87,9 +86,7 @@ std::pair<Point, double> propagationAlg(Mat* firstImage, Mat* secondImage, int w
 	{
 		// Get the offset of the neighbour
 		horizontalNeighbourOffset = opticalFlow->ptr<Point>(actualPoint.y)[actualPoint.x + propegationDirection];
-		// Get the horizontal neighbour
-		horizontalNeighbourOffset.x = -propegationDirection;
-		horizontalNeighbourSim = colorSSD(firstImage, secondImage, actualPoint, windowSize, horizontalNeighbourOffset);
+		horizontalNeighbourSim = colorSSD(secondImage, secondImage, actualPoint, windowSize, horizontalNeighbourOffset);
 	}
 
 	std::pair<Point, double> output;
