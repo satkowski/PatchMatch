@@ -18,11 +18,11 @@ void calculateImagePiramide(Mat* firstImage, Mat* secondImage, int windowSize)
 		pyrDown(firstImages.back(), tempImage, Size(static_cast<int>(firstImages.back().cols / 2),
 													static_cast<int>(firstImages.back().rows / 2)));
 		firstImages.push_back(tempImage);
-		imwrite("IP" + std::to_string(ITERATION_IMAGEPYRAMID - iterationIndex) + "_First.jpeg", firstImages.back());
+		//imwrite("IP" + std::to_string(ITERATION_IMAGEPYRAMID - iterationIndex) + "_First.jpeg", firstImages.back());
 		pyrDown(secondImages.back(), tempImage, Size(static_cast<int>(secondImages.back().cols / 2),
 													 static_cast<int>(secondImages.back().rows / 2)));
 		secondImages.push_back(tempImage);
-		imwrite("IP" + std::to_string(ITERATION_IMAGEPYRAMID - iterationIndex) + "_Second.jpeg", secondImages.back());
+		//imwrite("IP" + std::to_string(ITERATION_IMAGEPYRAMID - iterationIndex) + "_Second.jpeg", secondImages.back());
 	}
 	printf(" - End\n");
 
