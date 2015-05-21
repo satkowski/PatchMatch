@@ -77,7 +77,7 @@ std::pair<Point, double> propagationAlg(Mat* firstImage, Mat* secondImage, int w
 	{
 		// Get the offset of the neighbour
 		verticalNeighbourOffset = opticalFlow->ptr<Point>(actualPoint.y + propegationDirection)[actualPoint.x];
-		double verticalNeighbourSim = colorSSD(secondImage, secondImage, actualPoint, windowSize, verticalNeighbourOffset);
+		verticalNeighbourSim = colorSSD(secondImage, secondImage, actualPoint, windowSize, verticalNeighbourOffset);
 	}
 	Point horizontalNeighbourOffset;
 	double horizontalNeighbourSim = std::numeric_limits<double>::infinity();
