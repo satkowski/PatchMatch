@@ -28,7 +28,7 @@ void calculateOpticalFlow(Mat* firstImage, Mat* secondImage, int windowSize, Mat
 			{
 				// Propagation step
 				std::pair<Point, double> actualOffset = propagationAlg(&tempFirstImage, &tempSecondImage, windowSize,
-																	   PROPAGATION_EVEN, Point(cX, cY), opticalFlowRowP[cX]);
+																	   PROPAGATION_EVEN, Point(cX, cY), opticalFlowRowP[cX], &opticalFlow);
 				// RandomSearch step: Change tha last offset to the computed best offset
 				opticalFlowRowP[cX] = randomSearchAlg(&tempFirstImage, &tempSecondImage, windowSize, Point(cX, cY), actualOffset).first;
 				printf("");
@@ -51,7 +51,7 @@ void calculateOpticalFlow(Mat* firstImage, Mat* secondImage, int windowSize, Mat
 			{
 				// Propagation step
 				std::pair<Point, double> actualOffsetPair = propagationAlg(&tempFirstImage, &tempSecondImage, windowSize,
-																		   PROPAGATION_ODD, Point(cX, cY), opticalFlowRowP[cX]);
+																		   PROPAGATION_ODD, Point(cX, cY), opticalFlowRowP[cX], &opticalFlow);
 				// RandomSearch step: Change tha last offset to the computed best offset
 				opticalFlowRowP[cX] = randomSearchAlg(&tempFirstImage, &tempSecondImage, windowSize, Point(cX, cY), actualOffsetPair).first;
 				printf("");
@@ -65,15 +65,28 @@ void calculateOpticalFlow(Mat* firstImage, Mat* secondImage, int windowSize, Mat
 		opticalFlow.copyTo(*inputOpticalFlow);
 }
 
-std::pair<Point, double> propagationAlg(Mat* firstImage, Mat* secondImage, int windowSize, int propegationDirection, Point actualPoint, Point actualOffset)
+std::pair<Point, double> propagationAlg(Mat* firstImage, Mat* secondImage, int windowSize, int propegationDirection, Point actualPoint, Point actualOffset, Mat* opticalFlow)
 {
-	Point verticalNeighbourOffset = Point(actualOffset.x, actualOffset.y + propegationDirection);
-	Point horizontalNeighbourOffset = Point(actualOffset.x + propegationDirection, actualOffset.y);
-
-	// Propagation for both neighbours of one patch/pixel
 	double actualSimilarity = colorSSD(firstImage, secondImage, actualPoint, windowSize, actualOffset);
-	double verticalNeighbourSim = colorSSD(firstImage, secondImage, actualPoint, windowSize, verticalNeighbourOffset);
-	double horizontalNeighbourSim = colorSSD(firstImage, secondImage, actualPoint, windowSize, horizontalNeighbourOffset);
+
+	Point verticalNeighbourOffset; 
+	double verticalNeighbourSim = std::numeric_limits<double>::infinity();
+	// Look for the vertical neighbour of the actual point
+	if (actualPoint.y + propegationDirection >= 0 && actualPoint.y + propegationDirection < opticalFlow->rows)
+	{
+		verticalNeighbourOffset = opticalFlow->ptr<Point>(actualPoint.y + propegationDirection)[actualPoint.x];
+		verticalNeighbourOffset.y -propegationDirection;
+		double verticalNeighbourSim = colorSSD(firstImage, secondImage, actualPoint, windowSize, verticalNeighbourOffset);
+	}
+	Point horizontalNeighbourOffset;
+	double horizontalNeighbourSim = std::numeric_limits<double>::infinity();
+	// Look for the horizontal neighbour of the actual point
+	if (actualPoint.x + propegationDirection >= 0 && actualPoint.x + propegationDirection < opticalFlow->cols)
+	{
+		horizontalNeighbourOffset = opticalFlow->ptr<Point>(actualPoint.y)[actualPoint.x + propegationDirection];
+		horizontalNeighbourOffset.x = -propegationDirection;
+		horizontalNeighbourSim = colorSSD(firstImage, secondImage, actualPoint, windowSize, horizontalNeighbourOffset);
+	}
 
 	std::pair<Point, double> output;
 	// Decide which has the best energy and save it as new offset/flow
