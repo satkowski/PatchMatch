@@ -4,8 +4,8 @@ using namespace cv;
 
 void calculateOpticalFlow(Mat* firstImage, Mat* secondImage, int windowSize, Mat* inputOpticalFlow, String filenamePart)
 {
-	Mat tempFirstImage, tempSecondImage, outputImage, opticalFlow;
-	firstImage->convertTo(tempFirstImage, CV_64FC3);
+	Mat convFirstImage, tempSecondImage, outputImage, opticalFlow;
+	firstImage->convertTo(convFirstImage, CV_64FC3);
 	secondImage->convertTo(tempSecondImage, CV_64FC3);
 
 	// Create an new random optical flow is empty or the pointer doesn't exists
@@ -27,10 +27,10 @@ void calculateOpticalFlow(Mat* firstImage, Mat* secondImage, int windowSize, Mat
 			for (int cX = 0; cX < firstImage->cols; cX++)
 			{
 				// Propagation step
-				std::pair<Point, double> actualOffset = propagationAlg(&tempFirstImage, &tempSecondImage, windowSize,
+				std::pair<Point, double> actualOffset = propagationAlg(&convFirstImage, &tempSecondImage, windowSize,
 																	   PROPAGATION_EVEN, Point(cX, cY), opticalFlowRowP[cX], &opticalFlow);
 				// RandomSearch step: Change tha last offset to the computed best offset
-				opticalFlowRowP[cX] = randomSearchAlg(&tempFirstImage, &tempSecondImage, windowSize, Point(cX, cY), actualOffset).first;
+				opticalFlowRowP[cX] = randomSearchAlg(&convFirstImage, &tempSecondImage, windowSize, Point(cX, cY), actualOffset).first;
 				printf("");
 			}
 		}
@@ -50,10 +50,10 @@ void calculateOpticalFlow(Mat* firstImage, Mat* secondImage, int windowSize, Mat
 			for (int cX = firstImage->cols - 1; cX > 0; cX--)
 			{
 				// Propagation step
-				std::pair<Point, double> actualOffsetPair = propagationAlg(&tempFirstImage, &tempSecondImage, windowSize,
+				std::pair<Point, double> actualOffsetPair = propagationAlg(&convFirstImage, &tempSecondImage, windowSize,
 																		   PROPAGATION_ODD, Point(cX, cY), opticalFlowRowP[cX], &opticalFlow);
 				// RandomSearch step: Change tha last offset to the computed best offset
-				opticalFlowRowP[cX] = randomSearchAlg(&tempFirstImage, &tempSecondImage, windowSize, Point(cX, cY), actualOffsetPair).first;
+				opticalFlowRowP[cX] = randomSearchAlg(&convFirstImage, &tempSecondImage, windowSize, Point(cX, cY), actualOffsetPair).first;
 				printf("");
 			}
 		}
@@ -74,7 +74,9 @@ std::pair<Point, double> propagationAlg(Mat* firstImage, Mat* secondImage, int w
 	// Look for the vertical neighbour of the actual point
 	if (actualPoint.y + propegationDirection >= 0 && actualPoint.y + propegationDirection < opticalFlow->rows)
 	{
+		// Get the offset of the neighbour
 		verticalNeighbourOffset = opticalFlow->ptr<Point>(actualPoint.y + propegationDirection)[actualPoint.x];
+		// Get the vertical neighbour
 		verticalNeighbourOffset.y -propegationDirection;
 		double verticalNeighbourSim = colorSSD(firstImage, secondImage, actualPoint, windowSize, verticalNeighbourOffset);
 	}
@@ -83,16 +85,18 @@ std::pair<Point, double> propagationAlg(Mat* firstImage, Mat* secondImage, int w
 	// Look for the horizontal neighbour of the actual point
 	if (actualPoint.x + propegationDirection >= 0 && actualPoint.x + propegationDirection < opticalFlow->cols)
 	{
+		// Get the offset of the neighbour
 		horizontalNeighbourOffset = opticalFlow->ptr<Point>(actualPoint.y)[actualPoint.x + propegationDirection];
+		// Get the horizontal neighbour
 		horizontalNeighbourOffset.x = -propegationDirection;
 		horizontalNeighbourSim = colorSSD(firstImage, secondImage, actualPoint, windowSize, horizontalNeighbourOffset);
 	}
 
 	std::pair<Point, double> output;
 	// Decide which has the best energy and save it as new offset/flow
-	if (verticalNeighbourSim < actualSimilarity && verticalNeighbourSim <= horizontalNeighbourSim)
+	if (verticalNeighbourSim <= actualSimilarity && verticalNeighbourSim <= horizontalNeighbourSim)
 		output = std::pair<Point, double>(verticalNeighbourOffset, verticalNeighbourSim);
-	else if (horizontalNeighbourSim < actualSimilarity && horizontalNeighbourSim < verticalNeighbourSim)
+	else if (horizontalNeighbourSim <= actualSimilarity && horizontalNeighbourSim < verticalNeighbourSim)
 		output = std::pair<Point, double>(horizontalNeighbourOffset, horizontalNeighbourSim);
 	else
 		output = std::pair<Point, double>(actualOffset, actualSimilarity);
@@ -128,25 +132,24 @@ std::pair<Point, double> randomSearchAlg(Mat* firstImage, Mat* secondImage, int 
 	return bestOffsetPair;
 }
 
-Mat warpImage(Mat* firstImage, Mat* opticalFlow, String filename)
+Mat warpImage(Mat* secondImage, Mat* opticalFlow, String filename)
 {
-	//std::ofstream myfile;
-	//myfile.open(filename);
-	//myfile << *opticalFlow;
-	//myfile.close();
+	std::ofstream myfile;
+	myfile.open(filename);
+	myfile << *opticalFlow;
+	myfile.close();
 
-	Mat outputImage = Mat_<Vec3b>(firstImage->rows, firstImage->cols);
+	Mat outputImage = Mat_<Vec3b>(secondImage->rows, secondImage->cols);
 
-	for (int cY = 0; cY < firstImage->rows; cY++)
+	for (int cY = 0; cY < secondImage->rows; cY++)
 	{
 		// Creating pointer
 		Point* opticalFlowRowP = opticalFlow->ptr<Point>(cY);
-		Vec3b* inputImageRowP = firstImage->ptr<Vec3b>(cY);
-
-		for (int cX = 0; cX < firstImage->cols; cX++)
+		Vec3b* inputImageRowP = secondImage->ptr<Vec3b>(cY);
+		for (int cX = 0; cX < secondImage->cols; cX++)
 		{
-			Point actualFlow = opticalFlowRowP[cX];
-			outputImage.ptr<Vec3b>(actualFlow.y + cY)[actualFlow.x + cX] = inputImageRowP[cX];
+			Point actualFlow = opticalFlow->at<Point>(cY, cX);
+			outputImage.ptr<Vec3b>(cY)[cX] = secondImage->ptr<Vec3b>(actualFlow.y + cY)[actualFlow.x + cX];
 		}
 	}
 
