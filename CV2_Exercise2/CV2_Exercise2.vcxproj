@@ -11,10 +11,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{77C6DEA3-4166-4B8C-9CE6-E12B7F887DBE}</ProjectGuid>
+    <ProjectGuid>{BC010CE2-6167-40F9-867E-26BBF9CBFEF2}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>CV2_Excersice1</RootNamespace>
-    <ProjectName>CV2_Exercise1</ProjectName>
+    <RootNamespace>CV2_Exercise2</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -53,7 +52,6 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>$(OPENCV_DIR)\..\..\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
@@ -72,7 +70,6 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>$(OPENCV_DIR)\..\..\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
@@ -81,30 +78,10 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalLibraryDirectories>$(OPENCV_DIR)\lib</AdditionalLibraryDirectories>
-      <AdditionalDependencies>opencv_ts300.lib;opencv_world300.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opencv_ts300d.lib;opencv_world300d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="ImagePyramid.cpp" />
-    <ClCompile Include="Main.cpp" />
-    <ClCompile Include="PatchMatch.cpp" />
-    <ClCompile Include="SimilarityMeasure.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="ImagePyramid.h" />
-    <ClInclude Include="Main.h" />
-    <ClInclude Include="PatchMatch.h" />
-    <ClInclude Include="SimilarityMeasure.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="..\Ressourcen\frame07.png" />
-    <Image Include="..\Ressourcen\frame08.png" />
-    <Image Include="..\Ressourcen\frame09.png" />
-    <Image Include="..\Ressourcen\frame10.png" />
-    <Image Include="..\Ressourcen\frame11.png" />
-    <Image Include="..\Ressourcen\frame12.png" />
-    <Image Include="..\Ressourcen\frame13.png" />
-    <Image Include="..\Ressourcen\frame14.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
